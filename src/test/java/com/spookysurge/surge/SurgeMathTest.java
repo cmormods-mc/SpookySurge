@@ -1,7 +1,6 @@
 package com.spookysurge.surge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -64,8 +63,8 @@ class SurgeMathTest {
         RewardLedger ledger = new RewardLedger(60);
         UUID player = UUID.randomUUID();
         UUID pokemon = UUID.randomUUID();
-        assertTrue(ledger.tryPay(player, pokemon));
-        assertFalse(ledger.tryPay(player, pokemon));
+        assertEquals(RewardLedger.Result.PAID, ledger.record(player, pokemon));
+        assertEquals(RewardLedger.Result.DUPLICATE, ledger.record(player, pokemon));
         assertEquals(1, ledger.actionsBy(player));
     }
 
@@ -73,8 +72,8 @@ class SurgeMathTest {
     void aPlayerStopsPayingAtTheCapButStillCounts() {
         RewardLedger ledger = new RewardLedger(3);
         UUID player = UUID.randomUUID();
-        for (int i = 0; i < 3; i++) assertTrue(ledger.tryPay(player, UUID.randomUUID()));
-        assertFalse(ledger.tryPay(player, UUID.randomUUID()));
+        for (int i = 0; i < 3; i++) assertEquals(RewardLedger.Result.PAID, ledger.record(player, UUID.randomUUID()));
+        assertEquals(RewardLedger.Result.CAPPED, ledger.record(player, UUID.randomUUID()));
         assertEquals(4, ledger.actionsBy(player));
     }
 

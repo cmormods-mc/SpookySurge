@@ -1,7 +1,10 @@
 package com.spookysurge;
 
+import com.spookysurge.command.SurgeCommands;
 import com.spookysurge.item.SurgeItemPack;
 import com.spookysurge.item.SurgeItems;
+import com.spookysurge.surge.SurgeEvents;
+import com.spookysurge.surge.SurgeManager;
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +18,9 @@ public final class SpookySurge implements ModInitializer {
     public void onInitialize() {
         SurgeItems.register();
         SurgeItemPack.register();
+        SurgeManager.register();
+        SurgeEvents.register();
+        SurgeCommands.register();
         LOG.info("Spooky Surge loaded");
     }
 }

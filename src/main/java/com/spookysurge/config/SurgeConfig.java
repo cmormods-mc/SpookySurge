@@ -30,6 +30,9 @@ public final class SurgeConfig {
     public int minSpawnDistance = 12;
     public int maxSpawnDistance = 32;
     public int lifetimeSeconds = 300;
+    /** Wild level range for surge spawns. */
+    public int levelMin = 10;
+    public int levelMax = 35;
 
     /** The shared counter's target is {@code targetPerPlayer * online}, clamped to [targetMin, targetMax]. */
     public int targetPerPlayer = 60;
@@ -106,6 +109,8 @@ public final class SurgeConfig {
         minSpawnDistance = clamp("minSpawnDistance", minSpawnDistance, 4, 64, problems);
         maxSpawnDistance = clamp("maxSpawnDistance", maxSpawnDistance, minSpawnDistance + 4, 96, problems);
         lifetimeSeconds = clamp("lifetimeSeconds", lifetimeSeconds, 30, 3600, problems);
+        levelMin = clamp("levelMin", levelMin, 1, 100, problems);
+        levelMax = clamp("levelMax", levelMax, levelMin, 100, problems);
         targetPerPlayer = clamp("targetPerPlayer", targetPerPlayer, 1, 10_000, problems);
         targetMin = clamp("targetMin", targetMin, 1, 100_000, problems);
         targetMax = clamp("targetMax", targetMax, targetMin, 1_000_000, problems);
