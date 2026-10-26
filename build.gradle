@@ -1,0 +1,68 @@
+plugins {
+    id 'fabric-loom' version '1.13.6'
+}
+
+version = '0.1.0'
+group = 'com.spookysurge'
+
+base {
+    archivesName = 'SpookySurge'
+}
+
+repositories {
+    maven { url = 'https://maven.fabricmc.net/' }
+    mavenCentral()
+    maven { url = 'https://maven.nucleoid.xyz/' }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'Modrinth'
+                url = 'https://api.modrinth.com/maven'
+            }
+        }
+        filter { includeGroup 'maven.modrinth' }
+    }
+}
+
+dependencies {
+    minecraft 'com.mojang:minecraft:1.21.1'
+    mappings loom.officialMojangMappings()
+
+    modImplementation 'net.fabricmc:fabric-loader:0.17.2'
+    modImplementation 'net.fabricmc.fabric-api:fabric-api:0.116.6+1.21.1'
+
+    // Same exact releases as CobbleRaids, so the two mods are built against one Cobblemon.
+    modImplementation 'maven.modrinth:MdwFAVRL:GJ2a1b8O' // Cobblemon 1.8.2
+    modImplementation 'eu.pb4:polymer-core:0.9.19+1.21.1'
+    modImplementation 'eu.pb4:polymer-resource-pack:0.9.19+1.21.1'
+    modImplementation 'eu.pb4:polymer-common:0.9.19+1.21.1'
+
+    compileOnly 'org.jetbrains.kotlin:kotlin-stdlib:2.2.20'
+
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.named('test', Test) {
+    useJUnitPlatform()
+    testLogging {
+        events 'failed'
+        exceptionFormat = 'full'
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    withSourcesJar()
+}
+
+processResources {
+    def modVersion = project.version
+    inputs.property 'version', modVersion
+    filesMatching('fabric.mod.json') {
+        expand version: modVersion
+    }
+}

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "spookysurge",
+  "version": "${version}",
+  "name": "Spooky Surge",
+  "description": "A server-wide Halloween event for Cobblemon: ghost Pokemon surge around every player, and the whole server unlocks bonus tiers together. Server-side only.",
+  "authors": ["CMor"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.spookysurge.SpookySurge"]
+  },
+  "depends": {
+    "fabricloader": ">=0.17.2",
+    "fabric-api": ">=0.116.6+1.21.1",
+    "minecraft": "1.21.1",
+    "java": ">=21",
+    "cobblemon": ">=1.8.2",
+    "polymer-core": ">=0.9.19",
+    "polymer-resource-pack": ">=0.9.19"
+  }
+}
