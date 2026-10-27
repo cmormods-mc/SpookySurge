@@ -3,6 +3,7 @@ package com.spookysurge.surge;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.spookysurge.SpookySurge;
+import com.spookysurge.api.SurgeEndedCallback;
 import com.spookysurge.config.SurgeConfig;
 import com.spookysurge.config.SurgeConfigStore;
 import com.spookysurge.item.SurgeItems;
@@ -65,6 +66,7 @@ public final class SurgeManager {
             state = SurgeState.get(server);
             ledger = new RewardLedger(config.perPlayerRewardCap);
             ledger.restore(state.actions);
+            checkSpecies();
             SpookySurge.LOG.info("Spooky Surge ready (phase {}, counter {})", state.phase, state.counter);
         }));
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> guard("stop", () -> {
@@ -82,8 +84,33 @@ public final class SurgeManager {
     public static SurgeConfig config() { return config; }
     public static RewardLedger ledger() { return ledger; }
 
+    /** Logs one warning per configured species Cobblemon does not know, so a typo shows at boot rather than at 20:00. */
+    private static void checkSpecies() {
+        int bad = 0;
+        for (SurgeConfig.SpeciesEntry entry : config.species) {
+            if (!SurgeSpawner.speciesExists(entry.id)) {
+                SpookySurge.LOG.warn("Config species '{}' is not a known Cobblemon species; it will never spawn", entry.id);
+                bad++;
+            }
+        }
+        for (String id : config.visitorSpecies) {
+            if (!SurgeSpawner.speciesExists(id)) {
+                SpookySurge.LOG.warn("Config visitorSpecies '{}' is not a known Cobblemon species; it will never spawn", id);
+                bad++;
+            }
+        }
+        if (bad == 0) SpookySurge.LOG.info("Checked {} configured species: all known", config.species.size() + config.visitorSpecies.size());
+    }
+
+    /** Raises experience gains during a running surge, if the operator turned the bonus on. */
+    public static int adjustExperience(int experience) {
+        if (state == null || state.phase != SurgeState.Phase.ACTIVE) return experience;
+        return SurgeMath.xpFor(experience, state.maxTier, config);
+    }
+
     public static void reload(MinecraftServer server) {
         config = SurgeConfigStore.load();
+        checkSpecies();
         ledger = new RewardLedger(config.perPlayerRewardCap);
         ledger.restore(state.actions);
     }
@@ -135,6 +162,9 @@ public final class SurgeManager {
         if (wasActive) {
             SpookySurge.LOG.info("Surge {} ended: spawned {}, credited {}, expired {}, counter {}, tier {}",
                     state.surgeId, spawnedCount, creditedCount, expiredCount, state.counter, state.maxTier);
+            SurgeEndedCallback.Summary summary = new SurgeEndedCallback.Summary(state.surgeId, state.maxTier, state.counter,
+                    target(server), ledger.snapshot());
+            guard("surge-ended-callback", () -> SurgeEndedCallback.EVENT.invoker().onSurgeEnded(summary));
         }
         state.phase = SurgeState.Phase.IDLE;
         removeAllSurgePokemon(server);

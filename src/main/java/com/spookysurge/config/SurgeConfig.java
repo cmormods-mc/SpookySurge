@@ -60,6 +60,11 @@ public final class SurgeConfig {
     /** The tier at which one rare Haunted Visitor appears for the table to race for. */
     public int visitorTier = 4;
 
+    /** Off by default. When on, every Pokemon's experience gain is raised by this percent from this tier while a surge runs. */
+    public boolean xpBonusEnabled = false;
+    public int xpBonusPercent = 25;
+    public int xpBonusTier = 2;
+
     public List<SpeciesEntry> species = defaultSpecies();
 
     public static final class SpeciesEntry {
@@ -124,6 +129,8 @@ public final class SurgeConfig {
         doubleCandyTier = clamp("doubleCandyTier", doubleCandyTier, 1, 4, problems);
         shinyTier = clamp("shinyTier", shinyTier, 1, 4, problems);
         visitorTier = clamp("visitorTier", visitorTier, 1, 4, problems);
+        xpBonusPercent = clamp("xpBonusPercent", xpBonusPercent, 0, 500, problems);
+        xpBonusTier = clamp("xpBonusTier", xpBonusTier, 1, 4, problems);
         if (shinyMultiplier < 1.0 || shinyMultiplier > 100.0 || Double.isNaN(shinyMultiplier)) {
             problems.add("shinyMultiplier " + shinyMultiplier + " reset to 3.0");
             shinyMultiplier = 3.0;

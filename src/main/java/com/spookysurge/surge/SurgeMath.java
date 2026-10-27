@@ -33,6 +33,13 @@ public final class SurgeMath {
         return tier >= config.doubleCandyTier ? base * config.doubleCandyMultiplier : base;
     }
 
+    /** Experience after the surge bonus. Never lowers a gain; rounds down; safe against overflow. */
+    public static int xpFor(int experience, int tier, SurgeConfig config) {
+        if (!config.xpBonusEnabled || tier < config.xpBonusTier || config.xpBonusPercent <= 0 || experience <= 0) return experience;
+        long scaled = (long) experience * (100L + config.xpBonusPercent) / 100L;
+        return (int) Math.min(Integer.MAX_VALUE, scaled);
+    }
+
     /** Spawn interval in ticks: faster from tier 1. */
     public static int spawnInterval(int tier, SurgeConfig config) {
         return tier >= 1 ? config.boostedSpawnIntervalTicks : config.spawnIntervalTicks;

@@ -95,6 +95,15 @@ public final class SurgeSpawner {
         return Optional.ofNullable(entity);
     }
 
+    /** Whether Cobblemon knows a species with this id. Used at startup to catch config typos. */
+    public static boolean speciesExists(String speciesId) {
+        try {
+            return PokemonSpecies.getByIdentifier(ResourceLocation.fromNamespaceAndPath("cobblemon", speciesId)) != null;
+        } catch (RuntimeException e) {
+            return false;
+        }
+    }
+
     /** True if this Pokemon carries a surge tag. */
     public static boolean isSurge(Pokemon pokemon) {
         return pokemon.getPersistentData().contains(TAG_SURGE);
