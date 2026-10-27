@@ -65,6 +65,7 @@ warning and never spawns. After upgrading the mod, new keys take their defaults.
 | `boostedSpawnIntervalTicks` | 60 | 20 to `spawnIntervalTicks` | The same, from tier 1. |
 | `perPlayerCap` | 4 | 1-20 | Live surge Pokemon near one player. |
 | `serverCap` | 40 | 1-200 | Live surge Pokemon on the whole server. |
+| `maxSpawnsPerSecond` | 5 | 1-100 | Spawns started per second across all players. Spreads the first wave so a surge start is not one slow tick. |
 | `minSpawnDistance`, `maxSpawnDistance` | 12, 32 | 4-64, min+4 to 96 | Ring around the player they spawn in. |
 | `lifetimeSeconds` | 300 | 30-3600 | Untouched surge Pokemon despawn after this. |
 | `levelMin`, `levelMax` | 10, 35 | 1-100 | Wild level range. |

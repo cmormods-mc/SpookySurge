@@ -27,6 +27,8 @@ public final class SurgeConfig {
     public int boostedSpawnIntervalTicks = 60;
     public int perPlayerCap = 4;
     public int serverCap = 40;
+    /** Spawns started per second across all players. Spreads the first wave over several seconds instead of one slow tick. */
+    public int maxSpawnsPerSecond = 5;
     public int minSpawnDistance = 12;
     public int maxSpawnDistance = 32;
     public int lifetimeSeconds = 300;
@@ -111,6 +113,7 @@ public final class SurgeConfig {
         boostedSpawnIntervalTicks = clamp("boostedSpawnIntervalTicks", boostedSpawnIntervalTicks, 20, spawnIntervalTicks, problems);
         perPlayerCap = clamp("perPlayerCap", perPlayerCap, 1, 20, problems);
         serverCap = clamp("serverCap", serverCap, 1, 200, problems);
+        maxSpawnsPerSecond = clamp("maxSpawnsPerSecond", maxSpawnsPerSecond, 1, 100, problems);
         minSpawnDistance = clamp("minSpawnDistance", minSpawnDistance, 4, 64, problems);
         maxSpawnDistance = clamp("maxSpawnDistance", maxSpawnDistance, minSpawnDistance + 4, 96, problems);
         lifetimeSeconds = clamp("lifetimeSeconds", lifetimeSeconds, 30, 3600, problems);

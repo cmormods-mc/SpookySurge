@@ -102,4 +102,16 @@ class SurgeMathTest {
         assertEquals(0, SurgeMath.xpFor(0, 4, config));
         assertEquals(Integer.MAX_VALUE, SurgeMath.xpFor(Integer.MAX_VALUE, 4, config));
     }
+
+    @Test
+    void theSpawnRateLimitIsKeptInRange() {
+        SurgeConfig bad = new SurgeConfig();
+        bad.maxSpawnsPerSecond = 0;
+        bad.validated(new ArrayList<>());
+        assertEquals(1, bad.maxSpawnsPerSecond);
+        bad.maxSpawnsPerSecond = 100_000;
+        bad.validated(new ArrayList<>());
+        assertEquals(100, bad.maxSpawnsPerSecond);
+        assertEquals(5, new SurgeConfig().maxSpawnsPerSecond);
+    }
 }

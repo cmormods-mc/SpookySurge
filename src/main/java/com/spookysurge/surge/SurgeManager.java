@@ -253,9 +253,16 @@ public final class SurgeManager {
         refreshBar(server);
     }
 
+    private static int spawnRotation;
+
     private static void spawnStep(MinecraftServer server) {
         int tier = state.maxTier;
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+        // Start from a different player each second so the per-second limit does not always favour the same ones.
+        List<ServerPlayer> players = new ArrayList<>(server.getPlayerList().getPlayers());
+        if (!players.isEmpty()) java.util.Collections.rotate(players, -(spawnRotation++ % players.size()));
+        int startedThisSecond = 0;
+        for (ServerPlayer player : players) {
+            if (startedThisSecond >= config.maxSpawnsPerSecond) return;
             if (player.isSpectator() || player.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) continue;
             if (nextSpawnAt.getOrDefault(player.getUUID(), 0L) > tick) continue;
             nextSpawnAt.put(player.getUUID(), tick + SurgeMath.spawnInterval(tier, config));
@@ -268,6 +275,7 @@ public final class SurgeManager {
             SurgeConfig.SpeciesEntry pick = SurgeMath.pickSpecies(config.species, RANDOM);
             if (pick == null) continue;
             spawnTracked(level, pos.get(), pick.id, pick.rarity, player.getUUID());
+            startedThisSecond++;
         }
     }
 
