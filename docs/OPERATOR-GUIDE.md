@@ -94,6 +94,12 @@ top contributor (or a random player in its dimension) 300 to 1500 blocks away; p
 appears under the Candy Hunt bar. It is released once per surge. If it cannot start, the log says why (`The World Boss did not start (...)`) and the
 Visitor spawns instead unless `prizeFallbackToVisitor` is off.
 
+### Giving the World Boss an arena
+
+With CobbleRaids 0.8.191+ you can build or paste an arena and mark where the boss stands: `/give @s cobbleraids:world_boss_spawn`, place it, optionally place
+`cobbleraids:world_boss_entrance` markers where warping players arrive. Tier 4 then starts the boss at the spawn marker, the chat shows a click-to-warp link and players use
+`/cobbleraids worldboss warp` and `return`. Details in CobbleRaids' `docs/WORLD-BOSS-DESIGN.md` (section 12c).
+
 ## Logs
 
 - `Surge credit: <player> took a <rarity> <species> (paid N Candy Corn, counter C)` for each reward.
