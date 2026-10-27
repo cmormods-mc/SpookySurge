@@ -92,4 +92,14 @@ class SurgeMathTest {
         assertNotNull(SurgeMath.pickSpecies(bad.species, new Random(1)));
         assertTrue(problems.size() >= 4);
     }
+
+    @Test
+    void xpBonusIsOffByDefaultAndOnlyAppliesFromItsTier() {
+        assertEquals(1000, SurgeMath.xpFor(1000, 4, config)); // disabled
+        config.xpBonusEnabled = true;                          // 25% from tier 2
+        assertEquals(1000, SurgeMath.xpFor(1000, 1, config));
+        assertEquals(1250, SurgeMath.xpFor(1000, 2, config));
+        assertEquals(0, SurgeMath.xpFor(0, 4, config));
+        assertEquals(Integer.MAX_VALUE, SurgeMath.xpFor(Integer.MAX_VALUE, 4, config));
+    }
 }

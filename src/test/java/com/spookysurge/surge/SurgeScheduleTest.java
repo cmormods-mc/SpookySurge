@@ -45,4 +45,27 @@ class SurgeScheduleTest {
         config.timezone = "Mars/Olympus";
         SurgeSchedule.due(SLOT, config, Set.of()); // must not throw
     }
+
+    @Test
+    void aSlotThatStraddlesMidnightIsStillRunningAfterIt() {
+        config.startTimes = new java.util.ArrayList<>(java.util.List.of("23:50"));
+        config.timezone = "UTC";
+        config.windowStart = "2026-10-31T00:00:00Z";
+        config.windowEnd = "2026-11-03T00:00:00Z";
+        // 23:50 UTC on the 31st + 30 minutes runs to 00:20 on the 1st.
+        var due = SurgeSchedule.due(Instant.parse("2026-11-01T00:05:00Z"), config, Set.of());
+        assertEquals("2026-10-31@23:50", due.orElseThrow().key());
+        assertTrue(SurgeSchedule.due(Instant.parse("2026-11-01T00:25:00Z"), config, Set.of()).isEmpty());
+    }
+
+    @Test
+    void twoSlotsInADayAreKeptApart() {
+        config.startTimes = new java.util.ArrayList<>(java.util.List.of("12:00", "20:00"));
+        config.timezone = "UTC";
+        config.windowStart = "2026-10-31T00:00:00Z";
+        config.windowEnd = "2026-11-03T00:00:00Z";
+        assertEquals("2026-10-31@12:00", SurgeSchedule.due(Instant.parse("2026-10-31T12:05:00Z"), config, Set.of()).orElseThrow().key());
+        assertEquals("2026-10-31@20:00", SurgeSchedule.due(Instant.parse("2026-10-31T20:05:00Z"), config, Set.of()).orElseThrow().key());
+        assertTrue(SurgeSchedule.due(Instant.parse("2026-10-31T16:00:00Z"), config, Set.of()).isEmpty());
+    }
 }
