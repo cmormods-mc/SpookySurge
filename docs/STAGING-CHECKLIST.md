@@ -27,6 +27,10 @@ Run this once on a test server before the event. Tick each line only when you sa
     fallback and you see one ordinary yellow bar. Details in [bossbar/VALIDATION.md](bossbar/VALIDATION.md).
 16. Confirm no other mod on the server uses YELLOW or BLUE boss bars (the artwork replaces those sprites for everyone).
 
+17. With CobbleRaids 0.8.191+ and the World Boss `enabled: true`, `auto_start: false`: `/surge start`, then `/surge tier 4`. The chat says the World Boss is
+    summoned, CobbleRaids announces the boss and its coordinates, and the log has `tier 4 summoned the World Boss`. Walk to it: its bar appears under the Candy Hunt bar.
+    With the World Boss disabled, tier 4 spawns the Haunted Visitor instead and the log says why.
+
 ## Bots
 
 `tools/bot-test` has mineflayer bots and a scenario suite that exercise steps 4 to 13 (spawning, catch

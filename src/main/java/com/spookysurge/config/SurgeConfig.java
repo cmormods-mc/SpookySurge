@@ -62,8 +62,12 @@ public final class SurgeConfig {
     /** Shiny odds are multiplied by this for surge Pokemon from {@link #shinyTier}. */
     public double shinyMultiplier = 3.0;
     public int shinyTier = 2;
-    /** The tier at which one rare Haunted Visitor appears for the table to race for. */
+    /** The tier that releases the top prize (see {@link #tierPrize}). The name is historical: it was the Haunted Visitor's tier. */
     public int visitorTier = 4;
+    /** What the top tier releases: "worldboss" (CobbleRaids' World Boss), "visitor" (one rare Haunted Visitor) or "none". */
+    public String tierPrize = "worldboss";
+    /** If the World Boss cannot start (CobbleRaids missing, disabled, too old, nobody to place it around), spawn the Haunted Visitor instead. */
+    public boolean prizeFallbackToVisitor = true;
 
     /** Off by default. When on, every Pokemon's experience gain is raised by this percent from this tier while a surge runs. */
     public boolean xpBonusEnabled = false;
@@ -138,6 +142,11 @@ public final class SurgeConfig {
         perPlayerRewardCap = clamp("perPlayerRewardCap", perPlayerRewardCap, 1, 10_000, problems);
         doubleCandyTier = clamp("doubleCandyTier", doubleCandyTier, 1, 4, problems);
         shinyTier = clamp("shinyTier", shinyTier, 1, 4, problems);
+        if (tierPrize == null || !List.of("worldboss", "visitor", "none").contains(tierPrize.trim().toLowerCase())) {
+            problems.add("tierPrize must be worldboss, visitor or none; reset to worldboss");
+            tierPrize = "worldboss";
+        }
+        tierPrize = tierPrize.trim().toLowerCase();
         visitorTier = clamp("visitorTier", visitorTier, 1, 4, problems);
         xpBonusPercent = clamp("xpBonusPercent", xpBonusPercent, 0, 500, problems);
         xpBonusTier = clamp("xpBonusTier", xpBonusTier, 1, 4, problems);

@@ -27,7 +27,7 @@ writes `config/spookysurge/server.json` with every key at its default.
 | 1 | Surge Pokemon spawn faster (`boostedSpawnIntervalTicks`). |
 | 2 | Shiny odds multiplied by `shinyMultiplier` for surge Pokemon. Optional XP bonus (see `xpBonusEnabled`). |
 | 3 | Candy Corn payouts multiplied by `doubleCandyMultiplier`. |
-| 4 | One rare "Haunted Visitor" spawns near the current top contributor. |
+| 4 | The top prize: by default a CobbleRaids **World Boss** is summoned around the current top contributor (see below). With `tierPrize` set to `visitor`, one rare "Haunted Visitor" spawns near them instead. |
 
 5. When the surge ends, leftover surge Pokemon are removed and a summary lists the top five.
    Anyone with at least `participationMin` catches or defeats gets `participationBonus` Candy Corn.
@@ -79,9 +79,20 @@ warning and never spawns. After upgrading the mod, new keys take their defaults.
 | `participationBonus`, `participationMin` | 5, 3 | 0-64, 0-1000 | End-of-surge bonus and the actions needed for it. |
 | `perPlayerRewardCap` | 60 | 1-10000 | Catches paid per player per surge. Beyond it, a catch still moves the counter but pays nothing. |
 | `shinyMultiplier`, `shinyTier` | 3.0, 2 | 1-100, 1-4 | Shiny boost for surge Pokemon. |
-| `visitorTier`, `visitorSpecies` | 4, a four-species list | | The Haunted Visitor. |
+| `visitorTier` | 4 | 1-4 | The tier that releases the top prize. |
+| `tierPrize` | `"worldboss"` | `worldboss`, `visitor`, `none` | `worldboss`: summon CobbleRaids' World Boss through its API (no dependency; reflection). `visitor`: the old Haunted Visitor. `none`: nothing extra. |
+| `prizeFallbackToVisitor` | `true` | | If the World Boss cannot start (CobbleRaids missing or older than 0.8.191, `enabled` false, one already active, nobody to place it around) spawn the Visitor instead, so the tier still pays out. |
+| `visitorSpecies` | a four-species list | | The Haunted Visitor's species (the fallback). |
 | `xpBonusEnabled`, `xpBonusPercent`, `xpBonusTier` | `false`, 25, 2 | 0-500, 1-4 | Optional XP boost while a surge runs. Off by default. |
 | `species` | 17 spooky species | | `{ "id": "gastly", "weight": 10, "rarity": "common" }`. Rarity is `common`, `uncommon` or `rare` and sets the payout. |
+
+## Summoning the World Boss from the top tier
+
+One event call: reaching tier 4 starts CobbleRaids' World Boss (needs CobbleRaids 0.8.191 or newer). To have the boss appear **only** this way, in
+`config/cobbleraids/world_boss.json` set `"enabled": true` and, under `spawn`, `"auto_start": false`, then `/cr worldboss reload`. The boss is placed around the
+top contributor (or a random player in its dimension) 300 to 1500 blocks away; players join its fight by walking within its radius, where its own boss bar
+appears under the Candy Hunt bar. It is released once per surge. If it cannot start, the log says why (`The World Boss did not start (...)`) and the
+Visitor spawns instead unless `prizeFallbackToVisitor` is off.
 
 ## Logs
 

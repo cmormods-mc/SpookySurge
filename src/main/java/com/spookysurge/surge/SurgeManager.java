@@ -383,17 +383,55 @@ public final class SurgeManager {
         state.maxTier = tier;
         broadcast(server, Component.literal("The Spooky Surge reaches tier " + tier + "! " + tierPerk(tier))
                 .withStyle(ChatFormatting.LIGHT_PURPLE));
-        if (tier >= config.visitorTier && !state.visitorSpawned) spawnVisitor(server);
+        if (tier >= config.visitorTier && !state.visitorSpawned) releaseTopPrize(server);
     }
 
     private static String tierPerk(int tier) {
         StringBuilder perks = new StringBuilder("More haunted Pokemon are rising.");
         if (tier >= config.shinyTier) perks.append(" Shiny odds are up.");
         if (tier >= config.doubleCandyTier) perks.append(" Candy Corn is doubled.");
+        if (tier >= config.visitorTier && "worldboss".equals(config.tierPrize)) perks.append(" The World Boss is summoned!");
         return perks.toString();
     }
 
-    private static void spawnVisitor(MinecraftServer server) {
+    /**
+     * The top tier's prize. By default the Candy Hunt summons CobbleRaids' World Boss around the top contributor; if that cannot start and
+     * {@code prizeFallbackToVisitor} is on, the old Haunted Visitor appears instead so the tier still pays out. The flag is set once the
+     * prize is settled (a boss started or was already running, or the choice was "none"), so it is never released twice in one surge.
+     */
+    private static void releaseTopPrize(MinecraftServer server) {
+        switch (config.tierPrize) {
+            case "none" -> state.visitorSpawned = true;
+            case "visitor" -> spawnVisitor(server);
+            default -> {
+                ServerPlayer near = topContributorInOverworld(server);
+                WorldBossBridge.Result result = WorldBossBridge.start(server, near);
+                switch (WorldBossBridge.decide(result, config.prizeFallbackToVisitor)) {
+                    case BOSS_STARTED -> {
+                        state.visitorSpawned = true;
+                        broadcast(server, Component.literal("The Spooky Surge Candy Hunt has summoned the World Boss! Gather and fight it together.")
+                                .withStyle(ChatFormatting.GOLD));
+                        SpookySurge.LOG.info("Surge {}: tier {} summoned the World Boss", state.surgeId, state.maxTier);
+                    }
+                    case BOSS_ALREADY_RUNNING -> {
+                        state.visitorSpawned = true;
+                        SpookySurge.LOG.info("Surge {}: a World Boss is already running; tier {} does not start another", state.surgeId, state.maxTier);
+                    }
+                    case FALL_BACK_TO_VISITOR -> {
+                        SpookySurge.LOG.warn("The World Boss did not start ({}); spawning the Haunted Visitor instead", result.reason());
+                        spawnVisitor(server);
+                    }
+                    case NOTHING -> {
+                        state.visitorSpawned = true;
+                        SpookySurge.LOG.warn("The World Boss did not start ({}) and the fallback is off; the top tier gives nothing extra", result.reason());
+                    }
+                }
+            }
+        }
+    }
+
+    /** The online overworld player with the most catches and defeats this surge, or null. */
+    private static ServerPlayer topContributorInOverworld(MinecraftServer server) {
         UUID best = null;
         int most = -1;
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
@@ -403,7 +441,11 @@ public final class SurgeManager {
                 best = player.getUUID();
             }
         }
-        ServerPlayer target = best == null ? null : server.getPlayerList().getPlayer(best);
+        return best == null ? null : server.getPlayerList().getPlayer(best);
+    }
+
+    private static void spawnVisitor(MinecraftServer server) {
+        ServerPlayer target = topContributorInOverworld(server);
         if (target == null) return;
         Optional<BlockPos> pos = SurgeSpawner.findPosition(target.serverLevel(), target, config, RANDOM);
         if (pos.isEmpty()) return;
