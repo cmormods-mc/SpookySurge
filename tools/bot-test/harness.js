@@ -50,19 +50,25 @@ const credits = (who) => [...logText().matchAll(CREDIT(who))].map((m) => ({ rari
  */
 async function throwAtSurgePokemon(s, name, id, { extraNbt = '', attempts = 5 } = {}) {
   const { bot } = s;
+  const { Vec3 } = require('vec3');
   const have = credits(name).length;
   const selector = `@e[type=cobblemon:pokemon,nbt={Pokemon:{PersistentData:{spookysurge:"${id}"${extraNbt}}}},limit=1,sort=nearest]`;
+  const ahead = `execute as ${name} at @s positioned ^ ^ ^2.5 run`;
   for (let attempt = 1; attempt <= attempts; attempt++) {
-    cmd(`execute as ${name} at @s positioned ^ ^ ^3 run tp ${selector} ~ ~ ~`);
-    await sleep(700);
+    // Level the aim first, or each attempt aims lower than the last and drags the target into the ground.
+    await bot.look(bot.entity.yaw, 0, true);
+    await sleep(300);
+    cmd(`${ahead} tp ${selector} ~ ~0.3 ~`);
+    cmd(`${ahead} data merge entity ${selector} {NoAI:1b}`); // a Pokemon that wanders off is a missed throw
+    await sleep(900);
     const target = s.nearby(20).find((e) => e.dist < 5);
     s.record('target', target || null);
-    if (target) await bot.lookAt(bot.entity.position.offset(target.x - bot.entity.position.x, target.y - bot.entity.position.y + 0.4 - 1.62, target.z - bot.entity.position.z).offset(0, 1.62, 0), true);
+    if (target) await bot.lookAt(new Vec3(target.x, target.y + 0.5, target.z), true);
     bot.setQuickBarSlot(0);
-    await sleep(200);
+    await sleep(300);
     bot.activateItem();
-    s.record('threw', { attempt });
-    for (let i = 0; i < 24; i++) {
+    s.record('threw', { attempt, yaw: bot.entity.yaw, pitch: bot.entity.pitch });
+    for (let i = 0; i < 20; i++) {
       await sleep(500);
       const now = credits(name);
       if (now.length > have) return now[now.length - 1];
