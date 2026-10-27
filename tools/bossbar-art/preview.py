@@ -13,8 +13,8 @@ FRAME = Image.open(os.path.join(HERE, 'frame_full.png')).convert('RGBA')
 LIT = Image.open(f'{B.FNT}/tier_lit.png').convert('RGBA')
 LETTERS = Image.open(f'{B.FNT}/letters.png').convert('RGBA')
 TIMER = Image.open(f'{B.FNT}/timer.png').convert('RGBA')
-BG_SPRITE = Image.open(f'{B.SPR}/yellow_background.png').convert('RGBA')
-PROG = Image.open(f'{B.SPR}/yellow_progress.png').convert('RGBA')
+BG_SPRITE = Image.open(f'{B.SPR}/background.png').convert('RGBA')
+PROG = Image.open(f'{B.SPR}/progress.png').convert('RGBA')
 ORDER = R.ORDER
 
 

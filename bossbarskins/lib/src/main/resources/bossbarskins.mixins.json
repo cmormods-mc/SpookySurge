@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "com.bossbarskins.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BossEventMixin",
+    "AddOperationMixin",
+    "BossEventPacketMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

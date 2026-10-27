@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "bbstest",
+  "version": "${version}",
+  "name": "Boss Bar Skins test mod",
+  "description": "Not for production: a second mod that asks for the same YELLOW boss bar as Spooky Surge, to prove Boss Bar Skins gives each its own look without either mod knowing about it.",
+  "license": "MIT",
+  "environment": "server",
+  "entrypoints": { "main": ["com.bbstest.BbsTest"] },
+  "depends": { "fabricloader": ">=0.17.2", "fabric-api": "*", "minecraft": "1.21.1" }
+}

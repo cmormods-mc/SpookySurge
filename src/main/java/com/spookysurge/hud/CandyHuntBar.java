@@ -69,7 +69,8 @@ public final class CandyHuntBar {
         this.artName = artName;
         this.plainName = plainName;
         this.art = new ServerBossEvent(title(artName, 0), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS);
-        this.plain = new ServerBossEvent(Component.literal(plainName), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS);
+        // NOTCHED_10, not the PROGRESS bar the art uses: Boss Bar Skins only remaps requests a mod declared, so this plain bar is never mistaken for the art bar
+        this.plain = new ServerBossEvent(Component.literal(plainName), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.NOTCHED_10);
         this.spacer.setProgress(0f);
         this.tail.setProgress(0f);
         synchronized (LIVE) { LIVE.add(this); }

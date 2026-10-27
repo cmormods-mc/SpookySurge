@@ -12,11 +12,6 @@ ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))
 RES = os.path.join(ROOT, 'src', 'main', 'resources')
 OUT = os.path.join(ROOT, 'docs', 'bossbar')
 FILES = [
-    'assets/minecraft/textures/gui/sprites/boss_bar/yellow_background.png',
-    'assets/minecraft/textures/gui/sprites/boss_bar/yellow_progress.png',
-    'assets/minecraft/textures/gui/sprites/boss_bar/yellow_progress.png.mcmeta',
-    'assets/minecraft/textures/gui/sprites/boss_bar/blue_background.png',
-    'assets/minecraft/textures/gui/sprites/boss_bar/blue_progress.png',
     'assets/spookysurge/font/candyhunt.json',
     'assets/spookysurge/textures/font/candyhunt/frame_l.png',
     'assets/spookysurge/textures/font/candyhunt/frame_r.png',
@@ -33,6 +28,11 @@ def main():
     with zipfile.ZipFile(zpath, 'w', zipfile.ZIP_DEFLATED) as z:
         z.writestr('pack.mcmeta', json.dumps({"pack": {"pack_format": 34, "description": "Spooky Surge Candy Hunt boss bar (preview)"}}, indent=1))
         for f in FILES: z.write(os.path.join(RES, f), f)
+        V = 'assets/minecraft/textures/gui/sprites/boss_bar/'            # the preview pack has no Boss Bar Skins: the art goes straight onto YELLOW and BLUE
+        S = os.path.join(RES, 'bossbarskins', 'candyhunt')
+        for src, dst in (('background.png', 'yellow_background.png'), ('progress.png', 'yellow_progress.png'), ('progress.png.mcmeta', 'yellow_progress.png.mcmeta'),
+                         ('transparent.png', 'blue_background.png'), ('transparent.png', 'blue_progress.png')):
+            z.write(os.path.join(S, src), V + dst)
     lines = ['# Spooky Surge Candy Hunt: vanilla /bossbar demo. Needs candyhunt-preview-pack.zip loaded on the client.',
              '# Each state is three bars in this order: BLUE spacer, YELLOW art bar, BLUE tail spacer. Run on a server where you are an operator.',
              '# Replace @s with your name if you run it from the console. Remove everything afterwards with the cleanup block at the end.', '']

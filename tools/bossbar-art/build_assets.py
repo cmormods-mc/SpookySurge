@@ -3,8 +3,8 @@
     python3 tools/bossbar-art/build_assets.py            # from the repo root
 
 Outputs (all under src/main/resources):
-    assets/minecraft/textures/gui/sprites/boss_bar/yellow_background.png, yellow_progress.png(+.mcmeta)   reserved colour YELLOW
-    assets/minecraft/textures/gui/sprites/boss_bar/blue_background.png,   blue_progress.png               reserved colour BLUE: fully transparent spacer
+    bossbarskins/candyhunt/{background,progress,transparent}.png (+ progress.png.mcmeta) and bossbarskins.json: the skin declaration read by Boss Bar Skins
+        (without that mod, CandyHuntPack writes them to YELLOW and BLUE in the vanilla sprite folder)
     assets/spookysurge/font/candyhunt.json
     assets/spookysurge/textures/font/candyhunt/{frame_l,frame_r,tier_lit,letters,timer}.png
     assets/spookysurge/hud/candyhunt_metrics.json   (not shipped to clients: glyph code points and advances for the server-side layout)
@@ -17,7 +17,7 @@ from PIL import Image
 
 ROOT = os.path.abspath(os.path.join(HERE, '..', '..'))
 RES = os.path.join(ROOT, 'src', 'main', 'resources')
-SPR = os.path.join(RES, 'assets', 'minecraft', 'textures', 'gui', 'sprites', 'boss_bar')
+SPR = os.path.join(RES, 'bossbarskins', 'candyhunt')
 FNT = os.path.join(RES, 'assets', 'spookysurge', 'textures', 'font', 'candyhunt')
 HUD = os.path.join(RES, 'assets', 'spookysurge', 'hud')
 NS = 'spookysurge'
@@ -34,10 +34,15 @@ def ascent_for(top):
 def main():
     for d in (SPR, FNT, HUD, os.path.join(RES, 'assets', NS, 'font')): os.makedirs(d, exist_ok=True)
     # sprites
-    R.sprite_background().save(f'{SPR}/yellow_background.png')
-    prog = R.sprite_progress(); prog.save(f'{SPR}/yellow_progress.png')
-    json.dump({"animation": {"frametime": 4, "width": 182, "height": 5}}, open(f'{SPR}/yellow_progress.png.mcmeta', 'w'))
-    for n in ('blue_background', 'blue_progress'): Image.new('RGBA', (182, 5), (0, 0, 0, 0)).save(f'{SPR}/{n}.png')
+    R.sprite_background().save(f'{SPR}/background.png')
+    prog = R.sprite_progress(); prog.save(f'{SPR}/progress.png')
+    json.dump({"animation": {"frametime": 4, "width": 182, "height": 5}}, open(f'{SPR}/progress.png.mcmeta', 'w'))
+    Image.new('RGBA', (182, 5), (0, 0, 0, 0)).save(f'{SPR}/transparent.png')
+    # what this mod asks Boss Bar Skins for: its art bar asks for YELLOW, its invisible spacers for BLUE (the same requests the code makes)
+    json.dump({"skins": [
+        {"id": "candy_hunt", "match": "YELLOW", "background": "bossbarskins/candyhunt/background.png", "progress": "bossbarskins/candyhunt/progress.png",
+         "meta": "bossbarskins/candyhunt/progress.png.mcmeta"},
+        {"id": "spacer", "match": "BLUE", "transparent": True}]}, open(f'{RES}/bossbarskins.json', 'w'), indent=2)
     # glyph textures
     frame = R.compose().image()
     left, right = frame.crop((0, 0, SPLIT, frame.height)), frame.crop((SPLIT, 0, frame.width, frame.height))

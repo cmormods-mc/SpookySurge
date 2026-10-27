@@ -53,7 +53,9 @@ constants; [captures/gui-scales-1-to-4.png](captures/gui-scales-1-to-4.png) show
 Minecraft draws a title's shadow 1 px down and right, at a quarter of the glyph's colour. The frame uses this: its upper rope's shadow falls
 on row 30 and becomes the top lip of the bar window, without touching a single bar pixel. Row 30 of the frame is therefore left empty.
 
-## 2. Reserved colours: **YELLOW and BLUE**
+## 2. Reserved colours: **YELLOW and BLUE** (and Boss Bar Skins)
+
+**Several mods?** Install [Boss Bar Skins](../../bossbarskins/README.md) alongside. Candy Hunt then asks for `YELLOW` and `BLUE` through the plain vanilla API as before, declares its skin in `bossbarskins.json`, and the library gives it a slot of its own if another mod wants `YELLOW` too, rewriting the style on the wire. Without the library this mod writes the sprites to `YELLOW` and `BLUE` itself, as described below. Its plain fallback bar uses `YELLOW` + `NOTCHED_10`, a request nobody declares, so it is never remapped.
 
 A replacement boss-bar sprite applies to **every** boss bar of that colour on the server, from any mod, and for every player who has the pack.
 
@@ -69,7 +71,7 @@ is used. Anything that does use them will show the CandyHunt fill (YELLOW) or be
 
 | File (in the jar and the pack) | Size | What |
 |---|---|---|
-| `assets/minecraft/textures/gui/sprites/boss_bar/yellow_background.png` | 182 x 5 | the drained cavity: dark plum, faint cracks |
+| `bossbarskins/candyhunt/background.png` (placed on `yellow_background.png`, or the slot Boss Bar Skins assigns) | 182 x 5 | the drained cavity: dark plum, faint cracks |
 | `.../yellow_progress.png` + `.mcmeta` | 182 x 80 (16 frames) | layered candy-corn cross-section (ivory crest, orange body, yellow base, burnt shadow), a seam every 26 px, a faint sheen walking along it |
 | `.../blue_background.png`, `blue_progress.png` | 182 x 5 | fully transparent |
 | `assets/spookysurge/textures/font/candyhunt/frame_l.png`, `frame_r.png` | 131 x 56 each | the frame, split in two (see limits) |

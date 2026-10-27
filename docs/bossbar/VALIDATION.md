@@ -34,6 +34,20 @@ Date of checks: 2026-10-27. Environment: Minecraft 1.21.1, Fabric Loader 0.17.2,
 | The bar survives a dimension change (Nether) and a death and respawn, with no duplicate | observed on screen during the session |
 | A first attempt with one 262 px frame glyph showed a missing-glyph box, which led to the two-glyph frame (131 px halves render correctly). `FontTexture.SIZE = 256` in the 1.21.1 bytecode supports the cause; the box itself was observed on screen | `CandyHuntAssetsTest` now fails the build for any glyph over 256 px |
 
+## B2. Boss Bar Skins (several mods, one colour), real client and dedicated server
+
+| Observation | Evidence |
+|---|---|
+| Two mods asking for `YELLOW` through the plain API each get their own look; Candy Hunt was relocated to `GREEN` without any code change | [two-mods-same-colour.png](captures/two-mods-same-colour.png), `/bossbarskins list`, pack contents (`green_*` = Candy Hunt art, `yellow_*` = the other mod's) |
+| An unskinned `PURPLE` bar from the other mod and a vanilla `/bossbar` purple bar are untouched | same capture |
+| An overlay slot works: a skin pinned to `YELLOW/NOTCHED_6` draws correctly and Candy Hunt keeps `YELLOW` | [two-mods-overlay-slot.png](captures/two-mods-overlay-slot.png) |
+| Spooky Surge alone (no library): sprites written on `yellow_*` / `blue_*` as before | pack listing on a server without the library |
+| Mixins load on a dedicated server; assignments persist in `config/bossbarskins/assignments.json` | server log, file contents |
+| Allocation rules, order independence, persistence, pins, overlay eligibility, JSON and PNG validation | 17 unit tests in `bossbarskins/lib` |
+
+Not verified for the library: attribution through Kotlin, lambdas or helper libraries in other mods' jars (the `StackWalker` and
+class-to-jar lookup handle them in principle), more than the two real mods tried here, and AscensionLib / CobbleRaids themselves.
+
 ## C. Not verified: needs a person, a different setup, or more time
 
 * **Pack finishing loading after the player has joined** (the `ON_RESOURCE_PACK_STATUS_CHANGE` switch from plain to art). Coded, not

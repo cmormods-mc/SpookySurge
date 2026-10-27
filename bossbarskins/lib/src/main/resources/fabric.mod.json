@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "bossbarskins",
+  "version": "${version}",
+  "name": "Boss Bar Skins",
+  "description": "Lets several server-side mods reskin vanilla boss bars without fighting over the same colour: each mod's bars keep using the vanilla API and are mapped to a free sprite slot by mod id.",
+  "authors": ["CMor"],
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["com.bossbarskins.BossBarSkins"]
+  },
+  "mixins": ["bossbarskins.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.17.2",
+    "fabric-api": ">=0.116.6+1.21.1",
+    "minecraft": "1.21.1",
+    "java": ">=21",
+    "polymer-resource-pack": ">=0.9.19"
+  }
+}

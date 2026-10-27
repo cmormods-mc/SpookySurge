@@ -1,0 +1,12 @@
+plugins {
+    id 'fabric-loom' version '1.13.6' apply false
+}
+subprojects {
+    group = 'com.bossbarskins'
+    version = '0.1.0'
+    repositories {
+        maven { url = 'https://maven.fabricmc.net/' }
+        mavenCentral()
+        maven { url = 'https://maven.nucleoid.xyz/' }
+    }
+}

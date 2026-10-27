@@ -1,0 +1,16 @@
+{
+  "skins": [
+    {
+      "id": "candy_hunt",
+      "match": "YELLOW",
+      "background": "bossbarskins/candyhunt/background.png",
+      "progress": "bossbarskins/candyhunt/progress.png",
+      "meta": "bossbarskins/candyhunt/progress.png.mcmeta"
+    },
+    {
+      "id": "spacer",
+      "match": "BLUE",
+      "transparent": true
+    }
+  ]
+}

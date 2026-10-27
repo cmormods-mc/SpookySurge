@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 
 /** Static checks of the shipped art: sizes, alpha, the font's references and the metrics the server lays text out with. */
 class CandyHuntAssetsTest {
-    private static final String SPRITES = "assets/minecraft/textures/gui/sprites/boss_bar/";
+    private static final String SPRITES = "bossbarskins/candyhunt/";
     private static final String FONT_TEX = "assets/spookysurge/textures/font/candyhunt/";
     private final CandyHuntMetrics m = CandyHuntMetrics.load();
 
@@ -54,15 +54,15 @@ class CandyHuntAssetsTest {
 
     @Test
     void yellowSpritesHaveTheExactBarSizeAndAreOpaque() throws IOException {
-        BufferedImage bg = png(SPRITES + "yellow_background.png");
+        BufferedImage bg = png(SPRITES + "background.png");
         assertEquals(182, bg.getWidth());
         assertEquals(5, bg.getHeight());
         for (int y = 0; y < 5; y++) for (int x = 0; x < 182; x++) assertEquals(255, alpha(bg, x, y), "background pixel " + x + "," + y);
-        BufferedImage prog = png(SPRITES + "yellow_progress.png");
+        BufferedImage prog = png(SPRITES + "progress.png");
         assertEquals(182, prog.getWidth());
         assertEquals(0, prog.getHeight() % 5);
         for (int y = 0; y < prog.getHeight(); y++) for (int x = 0; x < 182; x++) assertEquals(255, alpha(prog, x, y), "progress pixel " + x + "," + y);
-        JsonObject anim = json(SPRITES + "yellow_progress.png.mcmeta").getAsJsonObject("animation");
+        JsonObject anim = json(SPRITES + "progress.png.mcmeta").getAsJsonObject("animation");
         assertEquals(182, anim.get("width").getAsInt());
         assertEquals(5, anim.get("height").getAsInt());
         assertTrue(anim.get("frametime").getAsInt() >= 1);
@@ -71,7 +71,7 @@ class CandyHuntAssetsTest {
 
     @Test
     void emptyAndFillAreClearlyDifferent() throws IOException {
-        BufferedImage bg = png(SPRITES + "yellow_background.png"), prog = png(SPRITES + "yellow_progress.png");
+        BufferedImage bg = png(SPRITES + "background.png"), prog = png(SPRITES + "progress.png");
         double bgLum = 0, fillLum = 0;
         for (int y = 1; y < 4; y++) for (int x = 0; x < 182; x++) { bgLum += lum(bg.getRGB(x, y)); fillLum += lum(prog.getRGB(x, y)); }
         bgLum /= 3 * 182; fillLum /= 3 * 182;
@@ -84,7 +84,7 @@ class CandyHuntAssetsTest {
 
     @Test
     void blueSpacerIsInvisible() throws IOException {
-        for (String n : new String[] {"blue_background.png", "blue_progress.png"}) {
+        for (String n : new String[] {"transparent.png"}) {
             BufferedImage im = png(SPRITES + n);
             assertEquals(182, im.getWidth());
             assertEquals(5, im.getHeight());
@@ -200,6 +200,25 @@ class CandyHuntAssetsTest {
     private static boolean hasInkInLastColumn(BufferedImage im) {
         for (int y = 0; y < im.getHeight(); y++) if (alpha(im, im.getWidth() - 1, y) > 0) return true;
         return false;
+    }
+
+    @Test
+    void skinDeclarationMatchesWhatTheBarAsksFor() throws IOException {
+        JsonObject root = json("bossbarskins.json");
+        boolean art = false, spacer = false;
+        for (JsonElement e : root.getAsJsonArray("skins")) {
+            JsonObject o = e.getAsJsonObject();
+            if (o.get("id").getAsString().equals("candy_hunt")) {
+                art = true;
+                assertEquals("YELLOW", o.get("match").getAsString(), "CandyHuntBar's art bar asks for YELLOW");
+                for (String k : new String[] {"background", "progress", "meta"}) open(o.get(k).getAsString()).close();
+            } else if (o.get("id").getAsString().equals("spacer")) {
+                spacer = true;
+                assertEquals("BLUE", o.get("match").getAsString(), "CandyHuntBar's spacers ask for BLUE");
+                assertTrue(o.get("transparent").getAsBoolean());
+            }
+        }
+        assertTrue(art && spacer);
     }
 
     @Test

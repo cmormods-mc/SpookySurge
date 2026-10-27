@@ -1,0 +1,5 @@
+{
+  "skins": [
+    { "id": "teal_bar", "match": "YELLOW", "background": "bossbarskins/teal_background.png", "progress": "bossbarskins/teal_progress.png" }
+  ]
+}
