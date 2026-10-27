@@ -45,6 +45,15 @@ public final class SlotAllocator {
     }
 
     public static Result allocate(List<Skin> skins, Map<String, Slot> previous, Map<String, Slot> pins, Set<String> reserved, List<Slot> pool) {
+        return allocate(skins, previous, pins, reserved, pool, Map.of());
+    }
+
+    /**
+     * @param claims slot identity -> the mod that already skins it with static sprites (see {@link StaticClaims}); nobody else may take it,
+     *               not even by asking for it, because both writers would target the same sprite file in the pack
+     */
+    public static Result allocate(List<Skin> skins, Map<String, Slot> previous, Map<String, Slot> pins, Set<String> reserved, List<Slot> pool,
+                                  Map<String, String> claims) {
         Map<String, Slot> assigned = new LinkedHashMap<>();
         Map<String, String> occupied = new HashMap<>();
         List<String> problems = new ArrayList<>();
@@ -57,6 +66,9 @@ public final class SlotAllocator {
             if (transparent == null) {
                 Slot want = pins.getOrDefault(s.key(), previous.getOrDefault(s.key(), s.requested()));
                 transparent = Slot.colour(want.color());
+                if (claims.containsKey(transparent.identity()) && !claims.get(transparent.identity()).equals(s.owner())) {
+                    for (Slot p : pool) if (p.overlay() == BossBarOverlay.PROGRESS && !claims.containsKey(p.identity()) && !reserved.contains(p.identity())) { transparent = p; break; }
+                }
                 occupied.put(transparent.identity(), "(transparent)");
             }
             assigned.put(s.key(), transparent);
@@ -66,7 +78,7 @@ public final class SlotAllocator {
         for (int pass = 1; pass <= 4; pass++) {
             for (Skin s : sorted) {
                 if (s.transparent() || assigned.containsKey(s.key())) continue;
-                Slot slot = firstFree(candidates(s, previous, pins, reserved, pool, pass), s, occupied);
+                Slot slot = firstFree(candidates(s, previous, pins, reserved, pool, pass), s, occupied, claims);
                 if (slot == null) continue;
                 occupied.put(slot.identity(), s.key());
                 assigned.put(s.key(), slot);
@@ -94,11 +106,13 @@ public final class SlotAllocator {
         return out;
     }
 
-    private static Slot firstFree(List<Slot> candidates, Skin s, Map<String, String> occupied) {
+    private static Slot firstFree(List<Slot> candidates, Skin s, Map<String, String> occupied, Map<String, String> claims) {
         Set<String> tried = new HashSet<>();
         for (Slot c : candidates) {
             if (!tried.add(c.toString())) continue;
             if (occupied.containsKey(c.identity())) continue;
+            String claimer = claims.get(c.identity());
+            if (claimer != null && !claimer.equals(s.owner())) continue;          // someone's static sprites already skin this slot
             if (c.overlay() != BossBarOverlay.PROGRESS && !s.opaque()) continue;       // an overlay must be opaque to hide the colour under it
             return c;
         }

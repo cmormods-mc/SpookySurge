@@ -44,8 +44,8 @@ public final class BossBarSkins implements ModInitializer {
 
     /** Optional operator settings: {@code config/bossbarskins.json}. */
     public static final class Config {
-        /** Slot identities nobody may be relocated into (vanilla's own bosses use pink, purple and red). */
-        public List<String> reserved = new ArrayList<>(SlotAllocator.defaultReserved());
+        /** Extra slot identities nobody may be relocated into, on top of the built-in ones (pink, purple, red, notched_20) and any slot a mod skins with static sprites. */
+        public List<String> reserved = new ArrayList<>();
         /** "modid:skinid" -> "YELLOW" or "YELLOW/NOTCHED_6": force a skin into a slot. */
         public Map<String, String> pins = new LinkedHashMap<>();
     }
@@ -53,6 +53,7 @@ public final class BossBarSkins implements ModInitializer {
     private static final Map<String, Skin> SKINS = new LinkedHashMap<>();
     private static SlotAllocator.Result result;
     private static final Map<String, byte[]> SPRITE_BYTES = new HashMap<>();
+    private static final Map<String, String> CLAIMS = new LinkedHashMap<>();
 
     @Override
     public void onInitialize() {
@@ -75,9 +76,24 @@ public final class BossBarSkins implements ModInitializer {
                 problems.add(owner + ": cannot read bossbarskins.json (" + e.getMessage() + ")");
             }
         }
+        Map<String, String> claims = new LinkedHashMap<>();
+        for (ModContainer mod : FabricLoader.getInstance().getAllMods()) {
+            String id = mod.getMetadata().getId();
+            if (id.equals("minecraft") || id.equals("java") || id.equals(MOD_ID)) continue;
+            for (Path root : mod.getRootPaths()) for (String identity : StaticClaims.scan(root).keySet()) claims.putIfAbsent(identity, id);
+        }
+        CLAIMS.putAll(claims);
+        claims.forEach((identity, mod) -> LOG.info("Boss bar slot '{}' is already skinned by {}'s own sprites: it is protected and nobody else is placed there", identity, mod));
+        Set<String> reservedAll = new HashSet<>(SlotAllocator.defaultReserved());
+        reservedAll.addAll(config.reserved);
         Map<String, Slot> pins = parseSlots(config.pins, problems), previous = parseSlots(savedRaw, problems);
-        result = SlotAllocator.allocate(new ArrayList<>(SKINS.values()), previous, pins, new HashSet<>(config.reserved), SlotAllocator.defaultPool());
+        result = SlotAllocator.allocate(new ArrayList<>(SKINS.values()), previous, pins, reservedAll, SlotAllocator.defaultPool(), claims);
         problems.addAll(result.problems());
+        pins.forEach((key, wanted) -> {
+            Slot got = result.assigned().get(key);
+            if (SKINS.containsKey(key) && !wanted.equals(got))
+                problems.add("pin " + key + " -> " + wanted + " was not honoured (the slot is taken or skinned by another mod's static sprites); it got " + (got == null ? "nothing" : got));
+        });
         for (Skin s : SKINS.values()) {
             Slot slot = result.assigned().get(s.key());
             if (slot != null && !s.transparent()) {
@@ -131,9 +147,11 @@ public final class BossBarSkins implements ModInitializer {
         dispatcher.register(Commands.literal("bossbarskins").requires(s -> s.hasPermission(2))
                 .then(Commands.literal("list").executes(ctx -> {
                     if (SKINS.isEmpty()) {
+                        CLAIMS.forEach((identity, mod) -> ctx.getSource().sendSuccess(() -> Component.literal("protected: " + identity + " (static sprites from " + mod + ")"), false));
                         ctx.getSource().sendSuccess(() -> Component.literal("No mod has declared a boss bar skin."), false);
                         return 0;
                     }
+                    CLAIMS.forEach((identity, mod) -> ctx.getSource().sendSuccess(() -> Component.literal("protected: " + identity + " (static sprites from " + mod + ")"), false));
                     for (Skin s : SKINS.values()) {
                         Slot slot = result.assigned().get(s.key());
                         String line = s.key() + (s.transparent() ? " (transparent)" : "") + ": asks for " + s.requested() + " -> "

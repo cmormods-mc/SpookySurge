@@ -116,4 +116,29 @@ class SlotAllocatorTest {
         assertEquals(new Slot(BossBarColor.RED, BossBarOverlay.NOTCHED_6).identity(), new Slot(BossBarColor.GREEN, BossBarOverlay.NOTCHED_6).identity());
         assertNotEquals(Slot.colour(BossBarColor.RED).identity(), Slot.colour(BossBarColor.GREEN).identity());
     }
+
+    @Test
+    void aSlotSkinnedByAnotherModsStaticSpritesIsNeverHandedOut() {
+        Map<String, String> claims = Map.of("pink", "ascensionlib", "notched_20", "ascensionlib", "green", "somebody");
+        SlotAllocator.Result r = SlotAllocator.allocate(List.of(skin("a", "x", "PINK", true), skin("b", "x", "YELLOW", true), skin("c", "x", "YELLOW", true)), Map.of(), Map.of(),
+                Set.of(), SlotAllocator.defaultPool(), claims);
+        assertNotEquals("pink", r.assigned().get("a:x").identity(), "explicitly asking for a claimed slot does not win it");
+        for (Slot s : r.assigned().values()) assertFalse(claims.containsKey(s.identity()) && !s.identity().equals("x"), s + " is claimed");
+        assertEquals(Slot.parse("YELLOW"), r.assigned().get("b:x"));
+        assertNotEquals("green", r.assigned().get("c:x").identity());
+    }
+
+    @Test
+    void theClaimingModMayStillDeclareASkinForItsOwnSlot() {
+        SlotAllocator.Result r = SlotAllocator.allocate(List.of(skin("ascensionlib", "world_boss", "PINK", true)), Map.of(), Map.of(), SlotAllocator.defaultReserved(),
+                SlotAllocator.defaultPool(), Map.of("pink", "ascensionlib"));
+        assertEquals(Slot.parse("PINK"), r.assigned().get("ascensionlib:world_boss"));
+    }
+
+    @Test
+    void theTransparentSpacerAvoidsAClaimedSlot() {
+        SlotAllocator.Result r = SlotAllocator.allocate(List.of(spacer("a", "BLUE")), Map.of(), Map.of(), SlotAllocator.defaultReserved(), SlotAllocator.defaultPool(),
+                Map.of("blue", "somebody"));
+        assertNotEquals("blue", r.transparentSlot().identity());
+    }
 }

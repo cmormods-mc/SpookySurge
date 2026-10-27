@@ -14,11 +14,23 @@ import net.minecraft.world.BossEvent;
  * executor a YELLOW bar (the colour Spooky Surge also reskins) and an unskinned PURPLE bar, until {@code /bbstest off}.
  */
 public final class BbsTest implements ModInitializer {
-    private static ServerBossEvent yellow, purple;
+    private static ServerBossEvent yellow, purple, world;
 
     @Override
     public void onInitialize() {
+        // Stands in for AscensionLib: it ships the World Boss bar's real sprites (PINK and NOTCHED_20) in its jar and has Polymer copy them
+        // into the server pack, exactly as AscensionLib's PolymerPack does. Only when Polymer is present (it is on the test server).
+        if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("polymer-resource-pack")) Static.register();
         CommandRegistrationCallback.EVENT.register((dispatcher, registry, env) -> dispatcher.register(Commands.literal("bbstest").requires(s -> s.hasPermission(2))
+                .then(Commands.literal("worldboss").executes(ctx -> {
+                    ServerPlayer player = ctx.getSource().getPlayerOrException();
+                    clear();
+                    // What CobbleRaids does: a PINK bar with the 20-notch overlay, nothing declared anywhere
+                    world = new ServerBossEvent(Component.literal("World Boss (CobbleRaids asks PINK + NOTCHED_20)"), BossEvent.BossBarColor.PINK, BossEvent.BossBarOverlay.NOTCHED_20);
+                    world.setProgress(0.7f);
+                    world.addPlayer(player);
+                    return 1;
+                }))
                 .then(Commands.literal("off").executes(ctx -> {
                     clear();
                     return 1;
@@ -40,6 +52,7 @@ public final class BbsTest implements ModInitializer {
     private static void clear() {
         if (yellow != null) yellow.removeAllPlayers();
         if (purple != null) purple.removeAllPlayers();
-        yellow = purple = null;
+        if (world != null) world.removeAllPlayers();
+        yellow = purple = world = null;
     }
 }

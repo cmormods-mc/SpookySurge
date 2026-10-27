@@ -45,6 +45,10 @@ Date of checks: 2026-10-27. Environment: Minecraft 1.21.1, Fabric Loader 0.17.2,
 | Mixins load on a dedicated server; assignments persist in `config/bossbarskins/assignments.json` | server log, file contents |
 | Allocation rules, order independence, persistence, pins, overlay eligibility, JSON and PNG validation | 17 unit tests in `bossbarskins/lib` |
 
+| AscensionLib's World Boss bar (`PINK` + `NOTCHED_20`, static sprites copied into the Polymer pack) is untouched and keeps its art; a skin from another mod pinned to `PINK` is refused and moved | [world-boss-coexists.png](captures/world-boss-coexists.png); pack bytes for `pink_*` and `notched_20_*` equal AscensionLib's source files (175, 206, 115, 115 bytes); startup log `protected: pink / notched_20` |
+
+The World Boss check used AscensionLib's real sprites and the same Polymer call, in a stand-in mod: AscensionLib's own jar could not be built in this environment (its Kotlin plugin is not cached), and CobbleRaids was not run.
+
 Not verified for the library: attribution through Kotlin, lambdas or helper libraries in other mods' jars (the `StackWalker` and
 class-to-jar lookup handle them in principle), more than the two real mods tried here, and AscensionLib / CobbleRaids themselves.
 

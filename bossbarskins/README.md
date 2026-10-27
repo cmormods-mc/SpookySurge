@@ -49,10 +49,27 @@ reserved because CobbleRaids' World Boss uses it). Anything beyond that cannot b
 * Pack files live under the mod's own folder; the library writes them to the vanilla sprite names. A mod can still fall back to writing
   the vanilla names itself when this mod is absent (Spooky Surge does).
 
+## Mods that already skin a bar with static sprites (AscensionLib's World Boss bar)
+
+Some mods reskin a slot without this library: AscensionLib ships `pink_*` and `notched_20_*` sprites for CobbleRaids' World Boss bar
+(`PINK` + `NOTCHED_20`) and has Polymer copy them into the server pack. Nothing needs to change in either mod, because:
+
+* CobbleRaids declares nothing, so its bar is **never remapped**. It is still sent as `PINK` + `NOTCHED_20` and drawn with AscensionLib's art.
+* At startup the library **scans every mod's jar** for sprites under `assets/minecraft/textures/gui/sprites/boss_bar/` (at any depth, so
+  `ascensionlib-pack/...` is found) and **protects those slots**: no skin is ever relocated into them, and a skin from a *different* mod
+  that asks for one, or is pinned to one, is moved elsewhere with a warning. The mod that owns the sprites may still declare a skin for its own slot.
+* `pink`, `purple`, `red` (vanilla's own bosses) and `notched_20` are also reserved in code, so a stale config cannot drop the protection.
+* The library only writes sprite files for the slots it assigns, so it can never overwrite `pink_*` or `notched_20_*` in the pack.
+
+Checked with AscensionLib's real World Boss sprites and Polymer's `copyFromPath(..., overwrite)` (the call AscensionLib's `PolymerPack` makes):
+the pack keeps AscensionLib's exact bytes for those four files, and a skin pinned to `PINK` was refused and placed on `GREEN`
+([world-boss-coexists.png](../docs/bossbar/captures/world-boss-coexists.png): Candy Hunt, the World Boss bar and a vanilla Wither-coloured bar together).
+`/bossbarskins list` prints the protected slots.
+
 ## Operating it
 
 * `/bossbarskins list` (op level 2): every skin, what it asked for, where it landed (`(relocated)` marks a clash), or `NO SLOT`.
-* `config/bossbarskins/config.json`: `reserved` (slot names nobody is relocated into; default `pink`, `purple`, `red`, `notched_20`) and
+* `config/bossbarskins/config.json`: `reserved` (extra slot names nobody is relocated into, on top of the built-in `pink`, `purple`, `red`, `notched_20` and every statically skinned slot) and
   `pins` (`"modid:skinid": "YELLOW"` or `"YELLOW/NOTCHED_6"`).
 * Startup warnings name every relocation and every skin that found no slot.
 * Optional API for shared helper code that creates bars on behalf of another mod: `BossBarSkinsApi.claim(event, "modid")`.
@@ -62,8 +79,8 @@ reserved because CobbleRaids' World Boss uses it). Anything beyond that cannot b
 * **Players without the pack** see the slot's vanilla look, so a relocated bar shows the relocated colour (a bar asked as `YELLOW` but placed on
   `GREEN` is plain green). A mod alone on its colour is unaffected. Mods that care should give non-pack players their own plainly worded bar.
 * A skin that overlays only part of a bar (translucent notch ticks, as AscensionLib's World Boss uses on `PINK/NOTCHED_20`) is not supported
-  as a skin: it is not opaque, so it cannot take an overlay slot. Leave that mod on its static pack, and keep `notched_20` reserved.
-* Slots used by bars of mods that do **not** declare anything are unknown to this mod. Put them in `reserved`.
+  as a *declared* skin: it is not opaque, so it cannot take an overlay slot. Leave that mod on its static pack; it is protected automatically.
+* A mod that does not ship sprites for a slot but still creates bars with that look is invisible to the scan. That is fine unless another skin lands on the slot; put it in `reserved` if it matters.
 * One slot per (mod, requested look): a mod cannot declare two different skins for the same request.
 * Replacing a vanilla boss colour (`PINK`, `PURPLE`, `RED`) is allowed when a mod asks for it, and then affects vanilla's own bosses too.
 * The owner is the first non-vanilla caller of the constructor. A mod calling through a library it does not own should use `claim`.
@@ -71,7 +88,7 @@ reserved because CobbleRaids' World Boss uses it). Anything beyond that cannot b
 ## Build and test
 
 ```bash
-cd bossbarskins && ./gradlew build        # lib: 17 unit tests; testmod: a deliberately naive second mod
+cd bossbarskins && ./gradlew build        # lib: 22 unit tests; testmod: a deliberately naive second mod
 ```
 
 `testmod` (not for production) asks for `YELLOW` through the plain API and ships a teal skin. With Spooky Surge also asking for `YELLOW`, the
