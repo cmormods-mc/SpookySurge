@@ -165,28 +165,35 @@ def pumpkin_pail(c, cx=22):
             if 0 <= x < c.w and body[y, x]:
                 c.put(x, y, tuple4(ORANGE[1])); c.put(x + (1 if k < 0 else -1), y, tuple4(ORANGE[3]))
     c.outline(OUT, base=body)
-    # carved face, lit from inside
+    # carved face, lit from inside. Everything is mirrored about the pumpkin's own axis (bc) and clipped to the body shrunk by 2 px, so no
+    # feature can touch or cross the outline; the block of eyes, nose and mouth is centred in the part of the pumpkin below the rim.
     glow, edge = (255, 232, 130, 255), (120, 44, 10, 255)
+    inner = body.copy()
+    for _ in range(2):
+        e = inner.copy()
+        e[1:, :] &= inner[:-1, :]; e[:-1, :] &= inner[1:, :]; e[:, 1:] &= inner[:, :-1]; e[:, :-1] &= inner[:, 1:]
+        inner = e
+    inner[:31, :] = False                                                  # keep clear of the rim
     for sgn in (-1, 1):
-        eye = c.poly([(cx + sgn * 4.2, 41.2), (cx + sgn * 11.2, 41.2), (cx + sgn * 7.7, 34.6)])
+        eye = c.poly([(bc + sgn * 3.6, 40.0), (bc + sgn * 10.4, 40.0), (bc + sgn * 7.0, 33.6)]) & inner
         c.paint(eye, glow); c.outline(edge, base=eye)
-        c.put(cx + sgn * 7, 39, (255, 255, 240, 255))
-    nose = c.poly([(cx - 2, 43.2), (cx + 2, 43.2), (cx, 40.8)])
+        c.put(int(bc + (sgn * 6.4 if sgn > 0 else sgn * 6.4 - 1)), 38, (255, 255, 240, 255))
+    nose = c.poly([(bc - 1.9, 43.0), (bc + 1.9, 43.0), (bc, 40.8)]) & inner
     c.paint(nose, glow)
-    mouth = [(x, 45.0 + 4.2 * (1 - ((x - cx) / 13.0) ** 2)) for x in np.linspace(cx - 13, cx + 13, 14)] + \
-            [(x, 47.8 + 6.0 * (1 - ((x - cx) / 13.5) ** 2)) for x in np.linspace(cx + 13, cx - 13, 14)]
-    m = c.poly(mouth)
+    HW = 9.6
+    def top(x): return 45.0 + 2.6 * (1 - ((x - bc) / HW) ** 2)
+    def bot(x): return 47.0 + 4.6 * (1 - ((x - bc) / (HW + 0.4)) ** 2)
+    mouth = [(x, top(x)) for x in np.linspace(bc - HW, bc + HW, 16)] + [(x, bot(x)) for x in np.linspace(bc + HW, bc - HW, 16)]
+    m = c.poly(mouth) & inner
     c.paint(m, glow); c.outline(edge, base=m)
-    for i in range(6):                                                      # the grin's teeth
-        x = cx - 10.5 + i * 4.2
-        y0 = 45.0 + 4.2 * (1 - ((x - cx) / 13.0) ** 2) + 0.6
-        t = c.poly([(x, y0), (x + 2.6, y0), (x + 1.3, y0 + 2.4)]) & m
-        c.paint(t, edge)
-    for i in range(5):
-        x = cx - 8.4 + i * 4.2
-        y1 = 47.8 + 6.0 * (1 - ((x - cx) / 13.5) ** 2) - 0.6
-        t = c.poly([(x, y1), (x + 2.6, y1), (x + 1.3, y1 - 2.4)]) & m
-        c.paint(t, edge)
+    for i in range(5):                                                      # the grin's teeth: upper
+        x = bc - HW + 0.9 + i * 3.7
+        y0 = top(x) + 0.4
+        c.paint(c.poly([(x, y0), (x + 2.4, y0), (x + 1.2, y0 + 2.2)]) & m, edge)
+    for i in range(4):                                                      # and lower
+        x = bc - HW + 2.75 + i * 3.7
+        y1 = bot(x) - 0.4
+        c.paint(c.poly([(x, y1), (x + 2.4, y1), (x + 1.2, y1 - 2.2)]) & m, edge)
     # the rim: a charcoal band exactly as wide as the pumpkin at its widest, so it frames the opening instead of overhanging it
     rim = c.poly([(bc - RX, 24), (bc + RX, 24), (bc + RX - 0.6, 29.4), (bc - RX + 0.6, 29.4)])
     bevel(c, rim, CHAR, edge=rim); c.outline(OUT, base=rim, over=True)
