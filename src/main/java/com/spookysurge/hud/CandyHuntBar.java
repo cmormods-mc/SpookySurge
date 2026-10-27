@@ -21,7 +21,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.BossEvent;
 
 /**
- * The Candy Corn Revenant boss bar. Server thread only.
+ * The Spooky Surge Candy Hunt boss bar. Server thread only.
  *
  * <p>What a player sees depends on whether their client has this server's resource pack:
  * <ul>
@@ -34,8 +34,8 @@ import net.minecraft.world.BossEvent;
  * YELLOW and BLUE are reserved for this bar: the pack's replacement sprites apply to every bar of those colours, on the whole server.
  * Progress is the vanilla bar's own fill, so it clips natively; nothing in the art depends on the fill position.
  */
-public final class RevenantBar {
-    public static final ResourceLocation FONT = ResourceLocation.fromNamespaceAndPath(SpookySurge.MOD_ID, "revenant");
+public final class CandyHuntBar {
+    public static final ResourceLocation FONT = ResourceLocation.fromNamespaceAndPath(SpookySurge.MOD_ID, "candyhunt");
 
     /** How a viewer is shown: see the class comment. */
     public enum Mode { ART, PLAIN }
@@ -50,11 +50,11 @@ public final class RevenantBar {
         }
     }
 
-    private static final List<RevenantBar> LIVE = new ArrayList<>();
+    private static final List<CandyHuntBar> LIVE = new ArrayList<>();
     private static Policy policy = Policy.AUTO;
     private static boolean hooked;
 
-    private final RevenantTitle layout = new RevenantTitle(RevenantMetrics.load());
+    private final CandyHuntTitle layout = new CandyHuntTitle(CandyHuntMetrics.load());
     private final ServerBossEvent spacer = new ServerBossEvent(Component.empty(), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS);
     private final ServerBossEvent tail = new ServerBossEvent(Component.empty(), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.PROGRESS);
     private final ServerBossEvent art;
@@ -64,7 +64,7 @@ public final class RevenantBar {
     private String plainName;
     private int tier;
 
-    public RevenantBar(String artName, String plainName) {
+    public CandyHuntBar(String artName, String plainName) {
         this.artName = artName;
         this.plainName = plainName;
         this.art = new ServerBossEvent(title(artName, 0), BossEvent.BossBarColor.YELLOW, BossEvent.BossBarOverlay.PROGRESS);
@@ -195,7 +195,7 @@ public final class RevenantBar {
         policy = value == null ? Policy.AUTO : value;
     }
 
-    private static List<RevenantBar> snapshot() {
+    private static List<CandyHuntBar> snapshot() {
         synchronized (LIVE) { return new ArrayList<>(LIVE); }
     }
 
@@ -208,14 +208,14 @@ public final class RevenantBar {
             if (!(handler instanceof ServerGamePacketListenerImpl game) || !uuid.equals(PolymerResourcePackUtils.getMainUuid())) return;
             ServerPlayer player = game.player;
             player.getServer().execute(() -> guard(() -> {
-                for (RevenantBar bar : snapshot()) bar.resync(player);
+                for (CandyHuntBar bar : snapshot()) bar.resync(player);
             }));
         });
         ServerPlayConnectionEvents.DISCONNECT.register((handler, server) -> guard(() -> {
-            for (RevenantBar bar : snapshot()) bar.removeViewer(handler.getPlayer());
+            for (CandyHuntBar bar : snapshot()) bar.removeViewer(handler.getPlayer());
         }));
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> guard(() -> {
-            for (RevenantBar bar : snapshot()) {
+            for (CandyHuntBar bar : snapshot()) {
                 Mode mode = bar.viewers.remove(oldPlayer.getUUID());
                 if (mode == null) continue;
                 bar.detach(oldPlayer, mode);
@@ -223,10 +223,10 @@ public final class RevenantBar {
             }
         }));
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((player, origin, destination) -> guard(() -> {
-            for (RevenantBar bar : snapshot()) bar.resync(player);
+            for (CandyHuntBar bar : snapshot()) bar.resync(player);
         }));
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> guard(() -> {
-            for (RevenantBar bar : snapshot()) bar.close();
+            for (CandyHuntBar bar : snapshot()) bar.close();
         }));
     }
 
@@ -234,7 +234,7 @@ public final class RevenantBar {
         try {
             task.run();
         } catch (RuntimeException e) {
-            SpookySurge.LOG.error("Revenant bar: update failed", e);
+            SpookySurge.LOG.error("CandyHunt bar: update failed", e);
         }
     }
 }

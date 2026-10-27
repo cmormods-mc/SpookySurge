@@ -9,11 +9,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
- * Glyph code points and advances of the Revenant font, as written by {@code tools/bossbar-art/build_assets.py}. The server needs the
+ * Glyph code points and advances of the CandyHunt font, as written by {@code tools/bossbar-art/build_assets.py}. The server needs the
  * advances because it positions every glyph with space characters: it never asks the client how wide anything is.
  */
-public final class RevenantMetrics {
-    public static final String RESOURCE = "assets/spookysurge/hud/revenant_metrics.json";
+public final class CandyHuntMetrics {
+    public static final String RESOURCE = "assets/spookysurge/hud/candyhunt_metrics.json";
 
     public static final class Glyph {
         public int cp;
@@ -57,13 +57,13 @@ public final class RevenantMetrics {
     public int titleWidth;
     public Map<String, Glyph> letters;
 
-    private static RevenantMetrics cached;
+    private static CandyHuntMetrics cached;
 
-    public static synchronized RevenantMetrics load() {
+    public static synchronized CandyHuntMetrics load() {
         if (cached == null) {
-            try (InputStream in = RevenantMetrics.class.getClassLoader().getResourceAsStream(RESOURCE)) {
+            try (InputStream in = CandyHuntMetrics.class.getClassLoader().getResourceAsStream(RESOURCE)) {
                 if (in == null) throw new IllegalStateException("missing " + RESOURCE);
-                cached = new Gson().fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), RevenantMetrics.class);
+                cached = new Gson().fromJson(new InputStreamReader(in, StandardCharsets.UTF_8), CandyHuntMetrics.class);
             } catch (IOException e) {
                 throw new IllegalStateException("cannot read " + RESOURCE, e);
             }

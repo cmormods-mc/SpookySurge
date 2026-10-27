@@ -17,13 +17,13 @@ import javax.imageio.ImageIO;
 import org.junit.jupiter.api.Test;
 
 /** Static checks of the shipped art: sizes, alpha, the font's references and the metrics the server lays text out with. */
-class RevenantAssetsTest {
+class CandyHuntAssetsTest {
     private static final String SPRITES = "assets/minecraft/textures/gui/sprites/boss_bar/";
-    private static final String FONT_TEX = "assets/spookysurge/textures/font/revenant/";
-    private final RevenantMetrics m = RevenantMetrics.load();
+    private static final String FONT_TEX = "assets/spookysurge/textures/font/candyhunt/";
+    private final CandyHuntMetrics m = CandyHuntMetrics.load();
 
     private static InputStream open(String path) {
-        InputStream in = RevenantAssetsTest.class.getClassLoader().getResourceAsStream(path);
+        InputStream in = CandyHuntAssetsTest.class.getClassLoader().getResourceAsStream(path);
         assertNotNull(in, "missing from the jar: " + path);
         return in;
     }
@@ -49,7 +49,7 @@ class RevenantAssetsTest {
 
     @Test
     void everyFileTheBuilderAddsExists() throws IOException {
-        for (String f : RevenantPack.FILES) open(f).transferTo(java.io.OutputStream.nullOutputStream());
+        for (String f : CandyHuntPack.FILES) open(f).transferTo(java.io.OutputStream.nullOutputStream());
     }
 
     @Test
@@ -120,7 +120,7 @@ class RevenantAssetsTest {
 
     @Test
     void fontJsonIsConsistent() throws IOException {
-        JsonArray providers = json("assets/spookysurge/font/revenant.json").getAsJsonArray("providers");
+        JsonArray providers = json("assets/spookysurge/font/candyhunt.json").getAsJsonArray("providers");
         Set<Character> defined = new HashSet<>();
         Set<Character> seen = new HashSet<>();
         for (JsonElement e : providers) {
@@ -131,7 +131,7 @@ class RevenantAssetsTest {
             }
             assertEquals("bitmap", p.get("type").getAsString());
             String file = p.get("file").getAsString();
-            assertTrue(file.startsWith("spookysurge:font/revenant/") && file.equals(file.toLowerCase()), "lowercase namespaced path: " + file);
+            assertTrue(file.startsWith("spookysurge:font/candyhunt/") && file.equals(file.toLowerCase()), "lowercase namespaced path: " + file);
             BufferedImage im = png("assets/spookysurge/textures/" + file.substring("spookysurge:".length()));
             assertTrue(im.getWidth() <= 256 && im.getHeight() <= 256,
                     file + " is " + im.getWidth() + "x" + im.getHeight() + ": 1.21.1 bakes glyphs into 256x256 atlas pages, a bigger one renders as a missing-glyph box");
@@ -148,7 +148,7 @@ class RevenantAssetsTest {
         assertTrue(defined.contains((char) m.frame.cpLeft));
         assertTrue(defined.contains((char) m.frame.cpRight));
         assertTrue(defined.contains((char) m.tierLit.cp));
-        for (RevenantMetrics.Glyph g : m.letters.values()) assertTrue(defined.contains((char) g.cp), "undefined U+" + Integer.toHexString(g.cp));
+        for (CandyHuntMetrics.Glyph g : m.letters.values()) assertTrue(defined.contains((char) g.cp), "undefined U+" + Integer.toHexString(g.cp));
         for (int bit = 0; bit < 8; bit++) {
             assertTrue(defined.contains((char) (0xE200 + (1 << bit))));
             assertTrue(defined.contains((char) (0xE300 + (1 << bit))));
@@ -166,7 +166,7 @@ class RevenantAssetsTest {
         // A bitmap glyph advances (its rightmost inked column + 1) + 1. Recompute that from the PNG and compare with what the server uses.
         BufferedImage letters = png(FONT_TEX + "letters.png");
         JsonArray rows = null;
-        for (JsonElement e : json("assets/spookysurge/font/revenant.json").getAsJsonArray("providers")) {
+        for (JsonElement e : json("assets/spookysurge/font/candyhunt.json").getAsJsonArray("providers")) {
             JsonObject p = e.getAsJsonObject();
             if (p.get("type").getAsString().equals("bitmap") && p.get("file").getAsString().endsWith("letters.png")) rows = p.getAsJsonArray("chars");
         }
@@ -178,7 +178,7 @@ class RevenantAssetsTest {
             int right = -1;
             for (int x = 0; x < cw; x++) for (int y = 0; y < ch; y++) if (alpha(letters, c * cw + x, r * ch + y) > 0) right = Math.max(right, x);
             final char glyphChar = g;
-            RevenantMetrics.Glyph meta = m.letters.values().stream().filter(v -> v.cp == glyphChar).findFirst().orElseThrow();
+            CandyHuntMetrics.Glyph meta = m.letters.values().stream().filter(v -> v.cp == glyphChar).findFirst().orElseThrow();
             assertEquals(right + 2, meta.adv, "advance of U+" + Integer.toHexString(g));
             checked++;
         }
@@ -197,6 +197,6 @@ class RevenantAssetsTest {
 
     @Test
     void metricsFileIsNotShippedToClients() {
-        for (String f : RevenantPack.FILES) assertFalse(f.contains("hud/"), f);
+        for (String f : CandyHuntPack.FILES) assertFalse(f.contains("hud/"), f);
     }
 }

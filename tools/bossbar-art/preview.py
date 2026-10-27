@@ -5,10 +5,10 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
-import revenant as R
+import candyhunt as R
 import build_assets as B
 
-META = json.load(open(os.path.join(B.HUD, 'revenant_metrics.json')))
+META = json.load(open(os.path.join(B.HUD, 'candyhunt_metrics.json')))
 FRAME = Image.open(os.path.join(HERE, 'frame_full.png')).convert('RGBA')
 LIT = Image.open(f'{B.FNT}/tier_lit.png').convert('RGBA')
 LETTERS = Image.open(f'{B.FNT}/letters.png').convert('RGBA')
@@ -34,7 +34,7 @@ def name_run(name):
 
 
 def title_items(name, tier):
-    """Mirror of RevenantTitle.java: [(image, x, y_top)] in title pixels, plus the total width. Order = draw order."""
+    """Mirror of CandyHuntTitle.java: [(image, x, y_top)] in title pixels, plus the total width. Order = draw order."""
     items = [(FRAME, 0, 0)]
     for k in range(min(4, tier)): items.append((LIT, META['tier_lit']['lefts'][k], 39))
     run = name_run(name)
@@ -92,7 +92,7 @@ def font(sz, bold=False):
 STATES = [(1.0, 4, '100%'), (0.75, 3, '75%'), (0.5, 2, '50%'), (0.25, 1, '25%'), (0.10, 0, '10%'), (0.0, 0, 'Empty')]
 
 
-def sheet(path, name='THE CANDY CORN REVENANT'):
+def sheet(path, name='SPOOKY SURGE CANDY HUNT'):
     S, Z = 2, 5
     W_, H_ = 320, 62
     pad, lab = 24, 120
@@ -101,7 +101,7 @@ def sheet(path, name='THE CANDY CORN REVENANT'):
     zoom_w, zoom_h = 100 * Z, 62 * Z
     out = Image.new('RGB', (lab + 2 * col_w + 3 * pad + zoom_w, 110 + rows * (H_ * S + pad) + 60), (24, 22, 32))
     d = ImageDraw.Draw(out)
-    d.text((pad, 20), 'The Candy Corn Revenant: health states', font=font(26, True), fill=(250, 240, 220))
+    d.text((pad, 20), 'The Spooky Surge Candy Hunt: health states', font=font(26, True), fill=(250, 240, 220))
     d.text((pad, 58), 'Simulated 1.21.1 compositing (sprite + clipped fill + title glyphs with drop shadow). GUI scale 2 on the left, 5x pixel inspection of the left end on the right.',
            font=font(13), fill=(170, 164, 190))
     d.text((lab + pad, 88), 'dark background', font=font(14, True), fill=(220, 210, 240)); d.text((lab + 2 * pad + col_w, 88), 'bright background', font=font(14, True), fill=(220, 210, 240))

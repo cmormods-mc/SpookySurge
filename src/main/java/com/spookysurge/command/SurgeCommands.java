@@ -4,8 +4,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import com.spookysurge.hud.RevenantBar;
-import com.spookysurge.hud.RevenantPreview;
+import com.spookysurge.hud.CandyHuntBar;
+import com.spookysurge.hud.CandyHuntPreview;
 import com.spookysurge.surge.SurgeManager;
 import com.spookysurge.surge.SurgeState;
 import java.time.Instant;
@@ -48,7 +48,7 @@ public final class SurgeCommands {
                         .then(Commands.literal("preview")
                                 .then(Commands.argument("percent", IntegerArgumentType.integer(0, 100))
                                         .then(Commands.argument("tier", IntegerArgumentType.integer(0, 4))
-                                                .executes(ctx -> barPreview(ctx, RevenantPreview.DEFAULT_NAME))
+                                                .executes(ctx -> barPreview(ctx, CandyHuntPreview.DEFAULT_NAME))
                                                 .then(Commands.argument("name", StringArgumentType.greedyString())
                                                         .executes(ctx -> barPreview(ctx, StringArgumentType.getString(ctx, "name"))))))))
                 .then(Commands.literal("tier").requires(s -> s.hasPermission(2))
@@ -108,13 +108,13 @@ public final class SurgeCommands {
     private static int barPreview(CommandContext<CommandSourceStack> ctx, String name) {
         if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return fail(ctx, "Only a player can look at the bar.");
         int percent = IntegerArgumentType.getInteger(ctx, "percent"), tier = IntegerArgumentType.getInteger(ctx, "tier");
-        RevenantBar.Mode mode = RevenantPreview.show(player, percent, tier, name);
-        return ok(ctx, "Showing the " + (mode == RevenantBar.Mode.ART ? "artwork" : "plain fallback") + " bar for 60 seconds ("
+        CandyHuntBar.Mode mode = CandyHuntPreview.show(player, percent, tier, name);
+        return ok(ctx, "Showing the " + (mode == CandyHuntBar.Mode.ART ? "artwork" : "plain fallback") + " bar for 60 seconds ("
                 + percent + "%, tier " + tier + "). /surge bar off removes it.");
     }
 
     private static int barOff(CommandContext<CommandSourceStack> ctx) {
-        if (ctx.getSource().getEntity() instanceof ServerPlayer player && RevenantPreview.clear(player)) return ok(ctx, "Preview removed.");
+        if (ctx.getSource().getEntity() instanceof ServerPlayer player && CandyHuntPreview.clear(player)) return ok(ctx, "Preview removed.");
         return fail(ctx, "You have no preview showing.");
     }
 

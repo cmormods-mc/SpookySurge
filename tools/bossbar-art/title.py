@@ -1,8 +1,8 @@
-"""Python twin of src/main/java/com/spookysurge/hud/RevenantTitle.java. It exists so the preview pack and the demo commands can be made
-without a server, and so a golden file can prove the Java and Python layouts are identical (see make_golden.py and RevenantTitleGoldenTest)."""
+"""Python twin of src/main/java/com/spookysurge/hud/CandyHuntTitle.java. It exists so the preview pack and the demo commands can be made
+without a server, and so a golden file can prove the Java and Python layouts are identical (see make_golden.py and CandyHuntTitleGoldenTest)."""
 import json, os, unicodedata
 HERE = os.path.dirname(os.path.abspath(__file__))
-META = json.load(open(os.path.join(HERE, '..', '..', 'src', 'main', 'resources', 'assets', 'spookysurge', 'hud', 'revenant_metrics.json')))
+META = json.load(open(os.path.join(HERE, '..', '..', 'src', 'main', 'resources', 'assets', 'spookysurge', 'hud', 'candyhunt_metrics.json')))
 M = META
 
 
@@ -60,14 +60,14 @@ def title(name, tier):
 
 def component_json(name, tier):
     """The same title as a vanilla text component (what /bossbar set <id> name expects)."""
-    return json.dumps({"text": title(name, tier), "font": "spookysurge:revenant", "color": "white"})
+    return json.dumps({"text": title(name, tier), "font": "spookysurge:candyhunt", "color": "white"})
 
 
-CASES = [('', 0), ('THE CANDY CORN REVENANT', 0), ('THE CANDY CORN REVENANT', 4), ('Spooky Surge 1234/5000', 2), ('a', 3), ('SURGE BEGINS IN 45S', 1),
+CASES = [('', 0), ('SPOOKY SURGE CANDY HUNT', 0), ('SPOOKY SURGE CANDY HUNT', 4), ('Spooky Surge 1234/5000', 2), ('a', 3), ('SURGE BEGINS IN 45S', 1),
          ('x' * 80, 4), ('Pokémon  Trainer', 2), ('W' * 30, 0), ('中文 name', 1), ("It's the -END- & more: really?!", 4)]
 
 if __name__ == '__main__':
-    out = os.path.join(HERE, '..', '..', 'src', 'test', 'resources', 'revenant_golden.json')
+    out = os.path.join(HERE, '..', '..', 'src', 'test', 'resources', 'candyhunt_golden.json')
     os.makedirs(os.path.dirname(out), exist_ok=True)
     json.dump([{'name': n, 'tier': t, 'title': title(n, t)} for n, t in CASES], open(out, 'w'), indent=1)
     print('wrote', len(CASES), 'golden titles')

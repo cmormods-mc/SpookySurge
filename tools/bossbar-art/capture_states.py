@@ -9,7 +9,7 @@ import os, subprocess, sys, time
 
 CONSOLE, OUT = sys.argv[1], sys.argv[2]
 PLAYER = sys.argv[3] if len(sys.argv) > 3 else 'ShotCam'
-NAME = ' '.join(sys.argv[4:]) or 'THE CANDY CORN REVENANT'
+NAME = ' '.join(sys.argv[4:]) or 'SPOOKY SURGE CANDY HUNT'
 STATES = [(100, 4), (75, 3), (50, 2), (25, 1), (10, 0), (0, 0)]
 CROP = os.environ.get('CROP', '620x130+330+0')
 os.makedirs(OUT, exist_ok=True)

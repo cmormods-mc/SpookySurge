@@ -2,7 +2,7 @@
  "providers": [
   {
    "type": "bitmap",
-   "file": "spookysurge:font/revenant/frame_l.png",
+   "file": "spookysurge:font/candyhunt/frame_l.png",
    "ascent": 29,
    "height": 56,
    "chars": [
@@ -11,7 +11,7 @@
   },
   {
    "type": "bitmap",
-   "file": "spookysurge:font/revenant/frame_r.png",
+   "file": "spookysurge:font/candyhunt/frame_r.png",
    "ascent": 29,
    "height": 56,
    "chars": [
@@ -20,7 +20,7 @@
   },
   {
    "type": "bitmap",
-   "file": "spookysurge:font/revenant/tier_lit.png",
+   "file": "spookysurge:font/candyhunt/tier_lit.png",
    "ascent": -10,
    "height": 12,
    "chars": [
@@ -29,7 +29,7 @@
   },
   {
    "type": "bitmap",
-   "file": "spookysurge:font/revenant/letters.png",
+   "file": "spookysurge:font/candyhunt/letters.png",
    "ascent": 13,
    "height": 14,
    "chars": [

@@ -1,7 +1,7 @@
-# The Candy Corn Revenant boss bar
+# The Spooky Surge Candy Hunt bar
 
-A hand-drawn, animated-fill boss bar for Minecraft Java **1.21.1** (Fabric, Java 21, Polymer 0.9.19+1.21.1), built into this mod and
-delivered through the server's Polymer resource pack. **No client mod.** It is the Spooky Surge's bar, and `RevenantBar` is a small
+The event bar for the Spooky Surge: the whole server fills it together by catching and defeating surge Pokemon. A hand-drawn, animated-fill boss bar for Minecraft Java **1.21.1** (Fabric, Java 21, Polymer 0.9.19+1.21.1), built into this mod and
+delivered through the server's Polymer resource pack. **No client mod.** It is the Spooky Surge's bar, and `CandyHuntBar` is a small
 reusable class if another encounter should use it.
 
 ![health states, real client](captures/health-states-real-client.png)
@@ -26,7 +26,7 @@ can carry large art, and it works on an unmodified client, so the bar uses **bot
 
 * the vanilla bar still draws the **fill** (native clipping, native animation), using replaced `YELLOW` sprites;
 * a **frame** (two font glyphs, 262 x 56 together) is drawn *over* it with a transparent 182 x 5 window exactly on the bar. Nothing important
-  is ever clipped by the fill, because the face, the cluster and the rails are stationary frame pixels;
+  is ever clipped by the fill, because the pumpkin pail, the ghost and the rails are stationary frame pixels;
 * the **name** is set in the pack's own pixel font (so its width is known to the server), and the four **tier lights** are small glowing
   glyphs overlaid on the unlit pumpkins baked into the frame.
 
@@ -63,7 +63,7 @@ A replacement boss-bar sprite applies to **every** boss bar of that colour on th
   overlays are untouched.
 
 Before enabling this, check no other mod on the server uses `YELLOW` or `BLUE` boss bars. In this workspace's other repositories only `PINK`
-is used. Anything that does use them will show the Revenant fill (YELLOW) or become invisible (BLUE).
+is used. Anything that does use them will show the CandyHunt fill (YELLOW) or become invisible (BLUE).
 
 ## 3. The art
 
@@ -72,31 +72,32 @@ is used. Anything that does use them will show the Revenant fill (YELLOW) or bec
 | `assets/minecraft/textures/gui/sprites/boss_bar/yellow_background.png` | 182 x 5 | the drained cavity: dark plum, faint cracks |
 | `.../yellow_progress.png` + `.mcmeta` | 182 x 80 (16 frames) | layered candy-corn cross-section (ivory crest, orange body, yellow base, burnt shadow), a seam every 26 px, a faint sheen walking along it |
 | `.../blue_background.png`, `blue_progress.png` | 182 x 5 | fully transparent |
-| `assets/spookysurge/textures/font/revenant/frame_l.png`, `frame_r.png` | 131 x 56 each | the frame, split in two (see limits) |
+| `assets/spookysurge/textures/font/candyhunt/frame_l.png`, `frame_r.png` | 131 x 56 each | the frame, split in two (see limits) |
 | `.../tier_lit.png` | 13 x 12 | a lit tier light |
 | `.../letters.png` | 60 x 56 | the name font: A-Z, 0-9, `. , ' ! ? : - & /`, cell 5 x 14 |
-| `assets/spookysurge/font/revenant.json` | | providers: three bitmap sets and a `space` provider (+-1 ... +-128) |
+| `assets/spookysurge/font/candyhunt.json` | | providers: three bitmap sets and a `space` provider (+-1 ... +-128) |
 
 Palette: burnt orange, pumpkin orange, candy yellow, ivory tips, charcoal and near-black outlines, dark plum, with violet and sickly-green
-accents on the eyes and the trapped eyes in the rope. The frame has a cracked, grinning candy-corn Revenant (carved brows, slit eyes, haunted
-cracks) on a charcoal shield with candy-corn teeth, a smaller candy cluster inside a licorice hook on the other end, twisted licorice rope
-rails with trapped spectral eyes, hanging candy-corn fangs, four carved jack-o'-lantern tier lights, cobwebs, and a cracked-enamel banner for
-the name.
+accents on the ghost's eyes and the trapped eyes in the rope. The theme is a candy hunt, not a boss: on the left a grinning jack-o'-lantern
+trick-or-treat pail under a licorice handle, brimming with candy corn, wrapped sweets and a lollipop; on the right a friendly spectral ghost
+rising from a licorice bowl of candy; between them twisted licorice rope rails with trapped spectral eyes, hanging candy-corn teeth, four
+carved jack-o'-lantern tier lights, cobwebs, and a cracked-enamel banner that reads SPOOKY SURGE CANDY HUNT. The counter is not in the art:
+the fill and the lit pumpkins show progress, and the numbers are in the plain-text fallback and `/surge status`.
 
 **Animation**: only the fill is animated (16 frames, `frametime 4`, a restrained moving sheen). That path is verified in a real client. The frame
 is static on purpose. A low-health variant is not provided: the client cannot swap a texture per bar instance, so a variant would have to be a
 second reserved colour.
 
 Everything is drawn by code: `python3 tools/bossbar-art/build_assets.py` regenerates every PNG, the font JSON and the metrics file
-byte-for-byte (seeded, no libraries beyond Pillow and numpy). Edit `tools/bossbar-art/revenant.py` to change the art.
+byte-for-byte (seeded, no libraries beyond Pillow and numpy). Edit `tools/bossbar-art/candyhunt.py` to change the art.
 
 ## 4. Integration
 
-Files: `com.spookysurge.hud.RevenantBar` (the bar), `RevenantTitle` (layout), `RevenantMetrics`, `RevenantPack` (pack registration),
-`RevenantPreview` (operator preview). The surge uses it in `SurgeManager.refreshBar`:
+Files: `com.spookysurge.hud.CandyHuntBar` (the bar), `CandyHuntTitle` (layout), `CandyHuntMetrics`, `CandyHuntPack` (pack registration),
+`CandyHuntPreview` (operator preview). The surge uses it in `SurgeManager.refreshBar`:
 
 ```java
-RevenantBar bar = new RevenantBar("SPOOKY SURGE", "Spooky Surge");   // name with the art, text without it
+CandyHuntBar bar = new CandyHuntBar("SPOOKY SURGE", "Spooky Surge");   // name with the art, text without it
 bar.setNames("SPOOKY SURGE 20/100", "Spooky Surge | Tier 1 | 20 / 100 | 24:10 left");
 bar.setTier(1);                         // 0 to 4 lit pumpkins
 bar.setHealth(current, max);            // or setProgress(0..1); NaN, negatives, zero max are safe
@@ -107,7 +108,7 @@ bar.close();                            // encounter over
 
 * Server thread only. Names, tier and progress only produce a packet when the value changes (`ServerBossEvent` compares before it
   broadcasts; `addPlayer` only sends for a player not already in the set).
-* `RevenantBar.registerHooks()` (called once) handles: the pack finishing or failing to load, disconnect, respawn, dimension change, server stop.
+* `CandyHuntBar.registerHooks()` (called once) handles: the pack finishing or failing to load, disconnect, respawn, dimension change, server stop.
   A rejoining player cannot get a duplicate: viewers are keyed by UUID.
 * The name: upper-cased, accents stripped, characters the font lacks are dropped, cut with `...` if wider than the banner (147 px, about 24 letters).
 
@@ -124,7 +125,7 @@ Embedding the files in the jar does **not** deliver them. The mod registers them
 pack). Then Polymer builds one pack for the whole server:
 
 1. **Generate**: Polymer builds `polymer/resource_pack.zip` at startup, and `/polymer generate-pack` (permission level 3) rebuilds it. Check
-   it contains the nine files above (`unzip -l polymer/resource_pack.zip | grep -E "boss_bar|revenant"`).
+   it contains the nine files above (`unzip -l polymer/resource_pack.zip | grep -E "boss_bar|candyhunt"`).
 2. **Distribute**: use whatever the server already uses. With **`polymer-autohost`** (same version, `eu.pb4:polymer-autohost:0.9.19+1.21.1`) set
    `"enabled": true` in `config/polymer/auto-host.json`; it serves the pack on the game port, no second web server. Set
    `"required": true` (or call `markAsRequired()`) only if players must not be able to decline.
@@ -141,7 +142,7 @@ boxes. If the pack finishes loading after the player joined, Polymer's `ON_RESOU
 ## 6. Limits, stated plainly
 
 * **256 x 256 glyph limit.** Minecraft 1.21.1 bakes font glyphs into 256 x 256 atlas pages; a larger glyph renders as a missing-glyph box
-  (this is why the 262 px frame is two 131 px glyphs; `RevenantAssetsTest` fails the build if any glyph PNG exceeds 256). A glyph is not
+  (this is why the 262 px frame is two 131 px glyphs; `CandyHuntAssetsTest` fails the build if any glyph PNG exceeds 256). A glyph is not
   scaled or clipped by the game, and its position is only as exact as the `space` arithmetic.
 * **Ascent must not exceed height**, or the *whole* font fails to load; lowercase file names only. Both are tested.
 * **Vertical room.** The first bar's top is fixed at y = 12, so the frame's top (y = 0) is the screen edge; bars from other mods are pushed below
@@ -156,11 +157,11 @@ boxes. If the pack finishes loading after the player joined, Polymer's `ON_RESOU
 
 ```bash
 ./gradlew build                                   # unit + asset tests, and the jar
-unzip -l build/libs/SpookySurge-0.1.0.jar | grep -E "boss_bar|revenant"
+unzip -l build/libs/SpookySurge-0.1.0.jar | grep -E "boss_bar|candyhunt"
 ```
 
 In game (operator): `/surge bar preview 100 4`, then `50 2`, `0 0`, with a long name `/surge bar preview 60 3 A name that is far too long for the banner`.
 Run a real surge with `/surge start 0`, `/surge add 20`, `/surge tier 3`. To look at the art on a plain vanilla server use the
-[preview pack](revenant-preview-pack.zip) and [demo_commands.txt](demo_commands.txt) (`/bossbar` only).
+[preview pack](candyhunt-preview-pack.zip) and [demo_commands.txt](demo_commands.txt) (`/bossbar` only).
 `tools/bossbar-art/capture_states.py` and `real_sheet.py` produce the captures above from a running test client.
 The full list of what was and was not verified is in [VALIDATION.md](VALIDATION.md).

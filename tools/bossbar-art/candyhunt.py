@@ -1,4 +1,4 @@
-"""The Candy Corn Revenant: every pixel of the boss bar art, drawn by code.
+"""The Spooky Surge Candy Hunt: every pixel of the boss bar art, drawn by code.
 
 Rendering strategy (see docs/bossbar/README.md): the vanilla boss bar keeps drawing its 182x5 background/progress sprites for the reserved
 colour (YELLOW); this script replaces those two sprites, and draws one big FRAME glyph (262x56) that the server puts in the bar's title.
@@ -6,8 +6,8 @@ The frame has a 182x5 transparent window over the bar, so the native fill clippi
 
 Layout (canvas pixels, glyph top-left = 0,0):
     slot (the vanilla bar shows through)   x 40..221   y 31..35
-    left medallion: the Revenant's face     x 0..44     y 1..55
-    right medallion: candy cluster + hook   x 224..261  y 12..55
+    left medallion: jack-o'-lantern candy pail  x 0..44     y 1..55
+    right medallion: ghost + candy bowl         x 224..261  y 6..55
     name banner (name letters are overlaid)  x 55..207   y 12..27
 """
 import json, math, os, random, sys
@@ -74,68 +74,6 @@ def draw_candy(c, cx, top, h, bw, tw, deg=0.0, pivot=None, ramps=RAMPS, bands=(0
     return shape
 
 
-# ---------------------------------------------------------------------------------------------------------- the face
-def revenant_face(c, cx=22):
-    """Left medallion: a charcoal shield with candy-corn teeth round a carved, cracked, grinning candy corn."""
-    # shield: a larger candy-corn silhouette in charcoal, with teeth on both slanted sides
-    shield = c.poly(candy_pts(cx, 1, 54, 40, 10, 0.4))
-    # teeth: small candy corns pointing outward from the slanted sides
-    for i, y in enumerate((14, 26, 38, 49)):
-        t = (y - 1) / 54.0
-        half = (10 + 30 * t) / 2
-        for sgn in (-1, 1):
-            tx = cx + sgn * (half - 1)
-            tooth_pts = [(tx, y - 2.6), (tx + sgn * 4.2, y + 0.4), (tx, y + 2.6)]
-            tm = c.poly(tooth_pts)
-            ramp = RAMPS[i % 3]
-            bevel(c, tm, ramp)
-            c.outline(OUT, base=tm)
-    bevel(c, shield, CHAR, edge=shield)
-    c.outline(OUT, base=shield)
-    # shield rivets
-    for x, y in ((cx, 5), (cx - 17, 50), (cx + 17, 50)):
-        c.put(x, y, CHAR[4]); c.put(x + 1, y + 1, CHAR[0])
-    # the candy corn itself, inset
-    face = draw_candy(c, cx, 7, 46, 34, 7, outline=OUT)
-    # --- carving: brows, eyes, nose, grin
-    def poly_paint(pts, col): c.paint(c.poly(pts) & face, col)
-    for sgn in (-1, 1):
-        poly_paint([(cx + sgn * 10.5, 22.5), (cx + sgn * 1.5, 27.3), (cx + sgn * 1.5, 28.6), (cx + sgn * 10.5, 24.2)], tuple4((62, 22, 48)))       # angry brow
-        socket = [(cx + sgn * 9.8, 28.2), (cx + sgn * 2.4, 30.6), (cx + sgn * 3.2, 33.2), (cx + sgn * 9.0, 30.4)]                               # slit eye
-        poly_paint(socket, tuple4((22, 8, 34)))
-        for k in range(6):                                                                                                                        # spectral core
-            x = cx + sgn * (8.0 - k * 1.05); y = 29.2 + k * 0.4 + 0.2
-            c.put(round(x), round(y), tuple4(GREEN if k > 1 else VIOLET))
-            if k % 2 == 0: c.blend(round(x), round(y) - 1, (150, 255, 170, 110))
-        c.blend(cx + sgn * 10, 29, (150, 255, 170, 90)); c.blend(cx + sgn * 10, 30, (150, 255, 170, 70))
-    poly_paint([(cx - 2.4, 33.8), (cx + 2.4, 33.8), (cx, 37.2)], tuple4((34, 12, 30)))                                                        # nose
-    # grin: dark mouth between two zig-zag edges, ivory teeth
-    def ytop(x): return 41.0 + 3.2 * (1 - ((x - cx) / 14.0) ** 2)
-    mouth = [(x, ytop(x) - 0.2) for x in np.linspace(cx - 14.5, cx + 14.5, 30)] + [(x, ytop(x) + 7.4) for x in np.linspace(cx + 13, cx - 13, 28)]
-    poly_paint(mouth, tuple4((22, 8, 28)))
-    for i in range(7):                                                                                                                       # upper fangs
-        x0 = cx - 13.3 + i * 4.45
-        tooth = [(x0, ytop(x0) - 0.4), (x0 + 3.7, ytop(x0 + 3.7) - 0.4), (x0 + 1.85, ytop(x0 + 1.85) + 3.6)]
-        tm = c.poly(tooth) & face
-        bevel(c, tm, IVORY)
-    for i in range(6):                                                                                                                       # lower teeth
-        x0 = cx - 11.0 + i * 4.45
-        tooth = [(x0, ytop(x0) + 7.6), (x0 + 3.7, ytop(x0 + 3.7) + 7.6), (x0 + 1.85, ytop(x0 + 1.85) + 4.2)]
-        tm = c.poly(tooth) & face
-        bevel(c, tm, IVORY)
-    # haunted-sugar cracks (jagged dark lines with a pale lip), clipped to the candy
-    for seed, (x, y, steps, bias) in enumerate(((cx + 2, 8, 17, (0.3, 1)), (cx - 12, 52, 11, (0.5, -1)), (cx + 10, 36, 8, (0.1, 1)))):
-        pts = walk(seed + 11, x, y, steps, bias, 0.75)
-        for (px, py) in pts:
-            if 0 <= py < c.h and 0 <= px < c.w and face[py, px]:
-                c.put(px, py, CRACK); c.blend(px + 1, py, (255, 238, 200, 90)) if face[py, min(c.w - 1, px + 1)] else None
-    # glossy streak on the lit side
-    for k in range(8):
-        x, y = cx - 12 + (k * 0.2), 36 + k
-        if face[y, int(x)]: c.blend(int(x), y, (255, 255, 240, 150))
-    return face
-
-
 # ---------------------------------------------------------------------------------------------------------- right ornament
 def rope_pixels(c, path, width, ramp=LIC, period=4):
     """A twisted licorice rope along `path`: diagonal gloss stripes, a lit upper-left edge and a dark lower-right edge."""
@@ -163,20 +101,121 @@ def rope_pixels(c, path, width, ramp=LIC, period=4):
     return m
 
 
-def candy_cluster(c, cx=243, base_y=53):
-    # a licorice hook arching over the cluster like a cane handle, curling into a bead; drawn first so the candies stand inside it
-    hook = [(cx + 12.0 * math.cos(math.radians(a)) + 1.5, 36 + 21.0 * math.sin(math.radians(a))) for a in range(-212, -6, 9)]
-    rope_pixels(c, hook, 3.2)
-    end = hook[-1]
-    bead = c.ellipse(end[0], end[1] + 1.0, 2.9, 2.9)
-    bevel(c, bead, LIC, edge=bead); c.outline(OUT, base=bead)
-    # three separate candies fanned from one base
-    draw_candy(c, cx - 8, 28, 22, 11, 3, deg=-24, pivot=(cx - 3, base_y - 1), over=True)
-    draw_candy(c, cx + 8, 28, 22, 11, 3, deg=24, pivot=(cx + 3, base_y - 1), over=True)
-    draw_candy(c, cx, 15, 37, 14, 4, over=True)
-    # a tiny trapped spectral eye pair in the centre candy's orange band
+WRAPPERS = [((176, 96, 230), (255, 152, 30)), ((96, 210, 130), (255, 248, 228)), ((255, 110, 56), (255, 214, 56)), ((90, 170, 240), (255, 248, 228))]
+
+
+def ramp_of(col):
+    return [mix(col, (0, 0, 0), 0.62), mix(col, (0, 0, 0), 0.34), col, mix(col, (255, 255, 255), 0.3), mix(col, (255, 255, 255), 0.62)]
+
+
+def wrapped_candy(c, cx, cy, deg=0.0, wrap=0, length=12):
+    """A twisted-wrapper sweet: a bevelled oval, a stripe across the middle and a fan of wrapper at each end."""
+    col, stripe = WRAPPERS[wrap % len(WRAPPERS)]
+    half = length / 2.0
+    oval = [(cx + math.cos(a) * (half - 2), cy + math.sin(a) * 3.6) for a in [i * math.pi / 12 for i in range(24)]]
+    ends = []
     for sgn in (-1, 1):
-        c.put(cx + sgn * 2, 31, tuple4(GREEN)); c.blend(cx + sgn * 2, 32, (150, 255, 170, 110)); c.blend(cx + sgn * 3, 31, (150, 255, 170, 70))
+        ends.append([(cx + sgn * (half - 3), cy), (cx + sgn * (half + 2.2), cy - 3.4), (cx + sgn * (half + 2.2), cy + 3.4)])
+    body = c.poly(rot(oval, deg, cx, cy))
+    fans = [c.poly(rot(e, deg, cx, cy)) for e in ends]
+    whole = body | fans[0] | fans[1]
+    bevel(c, whole, ramp_of(col), edge=whole)
+    ang = math.radians(-deg)
+    for y, x in zip(*np.nonzero(body)):
+        lx = (x + 0.5 - cx) * math.cos(ang) - (y + 0.5 - cy) * math.sin(ang)
+        if abs(lx) < 1.3: c.put(x, y, stripe + (255,))
+    c.outline(OUT, base=whole, over=True)
+
+
+def lollipop(c, cx, cy, r=5.2, stick=(3, 14)):
+    c.paint(c.line([(cx, cy + r - 1), (cx + stick[0], cy + stick[1])], 1.4), IVORY[2] + (255,))
+    disc = c.ellipse(cx, cy, r, r)
+    for y, x in zip(*np.nonzero(disc)):
+        dx, dy = x + 0.5 - cx, y + 0.5 - cy
+        t = (math.atan2(dy, dx) / (2 * math.pi) + math.hypot(dx, dy) / r * 1.4) % 1.0
+        shade = 0.0 if (dx + dy) < 0 else -0.25
+        base = ORANGE[2] if t < 0.5 else IVORY[3]
+        c.put(x, y, mix(base, (0, 0, 0), -shade if shade < 0 else 0) + (255,))
+    c.outline(OUT, base=disc, over=True)
+    c.put(int(cx - 2), int(cy - 3), (255, 255, 255, 255))
+
+
+def pumpkin_pail(c, cx=22):
+    """Left medallion: a jack-o'-lantern trick-or-treat pail brimming with candy, under a licorice handle."""
+    handle = [(cx + 17.5 * math.cos(math.radians(a)), 25 + 22.0 * math.sin(math.radians(a))) for a in range(180, 361, 10)]
+    rope_pixels(c, handle, 2.8)
+    # the candy pile, drawn behind the rim
+    draw_candy(c, cx - 11, 7, 15, 9, 2.6, deg=-34, over=True)
+    draw_candy(c, cx + 11, 6, 15, 9, 2.6, deg=32, over=True)
+    lollipop(c, cx + 9, 14, 5.0, stick=(5, 12))
+    wrapped_candy(c, cx - 8, 18, deg=-18, wrap=0)
+    draw_candy(c, cx, 5, 17, 10, 3, deg=4, over=True)
+    wrapped_candy(c, cx + 2, 21, deg=10, wrap=1, length=11)
+    wrapped_candy(c, cx - 14, 22, deg=24, wrap=3, length=10)
+    # the pumpkin pail
+    body = c.ellipse(cx - 1, 40, 18.6, 15.2)
+    bevel(c, body, ORANGE, edge=body)
+    for k in (-13, -6.5, 6.5, 13):                                         # ribs follow the curve of the pumpkin
+        for y in range(26, 56):
+            f = 1 - ((y - 40) / 15.2) ** 2
+            if f <= 0: continue
+            x = int(round(cx + k * math.sqrt(f)))
+            if 0 <= x < c.w and body[y, x]:
+                c.put(x, y, tuple4(ORANGE[1])); c.put(x + (1 if k < 0 else -1), y, tuple4(ORANGE[3]))
+    c.outline(OUT, base=body)
+    # carved face, lit from inside
+    glow, edge = (255, 232, 130, 255), (120, 44, 10, 255)
+    for sgn in (-1, 1):
+        eye = c.poly([(cx + sgn * 4.2, 41.2), (cx + sgn * 11.2, 41.2), (cx + sgn * 7.7, 34.6)])
+        c.paint(eye, glow); c.outline(edge, base=eye)
+        c.put(cx + sgn * 7, 39, (255, 255, 240, 255))
+    nose = c.poly([(cx - 2, 43.2), (cx + 2, 43.2), (cx, 40.8)])
+    c.paint(nose, glow)
+    mouth = [(x, 45.0 + 4.2 * (1 - ((x - cx) / 13.0) ** 2)) for x in np.linspace(cx - 13, cx + 13, 14)] + \
+            [(x, 47.8 + 6.0 * (1 - ((x - cx) / 13.5) ** 2)) for x in np.linspace(cx + 13, cx - 13, 14)]
+    m = c.poly(mouth)
+    c.paint(m, glow); c.outline(edge, base=m)
+    for i in range(6):                                                      # the grin's teeth
+        x = cx - 10.5 + i * 4.2
+        y0 = 45.0 + 4.2 * (1 - ((x - cx) / 13.0) ** 2) + 0.6
+        t = c.poly([(x, y0), (x + 2.6, y0), (x + 1.3, y0 + 2.4)]) & m
+        c.paint(t, edge)
+    for i in range(5):
+        x = cx - 8.4 + i * 4.2
+        y1 = 47.8 + 6.0 * (1 - ((x - cx) / 13.5) ** 2) - 0.6
+        t = c.poly([(x, y1), (x + 2.6, y1), (x + 1.3, y1 - 2.4)]) & m
+        c.paint(t, edge)
+    # the pail's rim: a charcoal band with rivets, in front of the candy and the pumpkin top
+    rim = c.poly([(cx - 20, 24), (cx + 20, 24), (cx + 18.6, 29.4), (cx - 18.6, 29.4)])
+    bevel(c, rim, CHAR, edge=rim); c.outline(OUT, base=rim, over=True)
+    for x in (cx - 15, cx - 5, cx + 5, cx + 15): c.put(x, 26, tuple4(CHAR[4])); c.put(x, 27, tuple4(CHAR[0]))
+
+
+def ghost_bowl(c, cx=242):
+    """Right medallion: a friendly spectral ghost rising from a licorice bowl of wrapped candy."""
+    ghost_pts = [(cx - 10, 36)] + [(cx - 10 * math.cos(a), 16 - 11 * math.sin(a)) for a in [i * math.pi / 14 for i in range(15)]] + [(cx + 10, 36)]
+    ghost = c.poly(ghost_pts)
+    bevel(c, ghost, [(96, 84, 140), (150, 138, 196), (212, 206, 236), (240, 238, 252), (255, 255, 255)], edge=ghost)
+    c.outline(OUT, base=ghost)
+    for sgn in (-1, 1):
+        eye = c.ellipse(cx + sgn * 4.0, 16.5, 1.9, 2.8)
+        c.paint(eye, (30, 14, 50, 255))
+        c.put(cx + sgn * 4, 17, tuple4(GREEN)); c.blend(cx + sgn * 4, 18, (150, 255, 170, 110))
+    c.paint(c.ellipse(cx, 23.4, 1.5, 2.0), (30, 14, 50, 255))
+    for sgn in (-1, 1):                                                      # little arms reaching over the rim
+        arm = c.line([(cx + sgn * 9, 30), (cx + sgn * 13, 37)], 3.0)
+        bevel(c, arm, [(96, 84, 140), (150, 138, 196), (212, 206, 236), (240, 238, 252), (255, 255, 255)], edge=arm)
+        c.outline(OUT, base=arm, over=True)
+    # sweets heaped in front of the ghost, then the bowl
+    wrapped_candy(c, cx - 10, 41, deg=-24, wrap=2, length=11)
+    wrapped_candy(c, cx + 10, 40, deg=22, wrap=0, length=11)
+    draw_candy(c, cx - 2, 31, 15, 9, 2.6, deg=-8, over=True)
+    draw_candy(c, cx + 5, 34, 12, 8, 2.4, deg=24, over=True)
+    wrapped_candy(c, cx, 44, deg=4, wrap=1, length=12)
+    bowl = c.poly([(cx - 18, 44), (cx + 18, 44), (cx + 15, 52), (cx + 8, 55.4), (cx - 8, 55.4), (cx - 15, 52)])
+    bevel(c, bowl, LIC, edge=bowl); c.outline(OUT, base=bowl, over=True)
+    for x in range(int(cx - 16), int(cx + 16), 4):                          # twisted-licorice stripes on the bowl
+        for y in range(46, 55): c.put(x + (y - 46) // 3, y, tuple4(LIC[4])) if bowl[y, min(c.w - 1, x + (y - 46) // 3)] else None
 
 
 # ---------------------------------------------------------------------------------------------------------- banner, rails, details
@@ -292,8 +331,8 @@ def compose():
     fangs(c)
     for k in range(4): tier_studs(c, SLOT_X + (45, 91, 136, 181)[k], False)
     trapped_eyes(c)
-    candy_cluster(c)
-    revenant_face(c)
+    ghost_bowl(c)
+    pumpkin_pail(c)
     # keep the window (the 182x5 slot) completely transparent so the vanilla bar shows through, pixel for pixel
     inside = int(c.a[SLOT_Y:SLOT_Y + SLOT_H, SLOT_X:SLOT_X + SLOT_W, 3].astype(bool).sum())
     if inside: print('intruding pixels:', inside, np.argwhere(c.a[SLOT_Y:SLOT_Y + SLOT_H, SLOT_X:SLOT_X + SLOT_W, 3] > 0)[:12].tolist())

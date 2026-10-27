@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class RevenantTitleTest {
-    private final RevenantMetrics m = RevenantMetrics.load();
-    private final RevenantTitle t = new RevenantTitle(m);
+class CandyHuntTitleTest {
+    private final CandyHuntMetrics m = CandyHuntMetrics.load();
+    private final CandyHuntTitle t = new CandyHuntTitle(m);
 
     /** Where each non-space glyph starts, replaying the advances the way the client does. */
     private record Placed(int cp, int x) {}
@@ -19,7 +19,7 @@ class RevenantTitleTest {
         for (int i = 0; i < text.length(); i++) {
             char c = text.charAt(i);
             int before = x;
-            x = new RevenantTitle(m).advanceOf(String.valueOf(c)) + x;
+            x = new CandyHuntTitle(m).advanceOf(String.valueOf(c)) + x;
             if (!(c >= '' && c <= '')) out.add(new Placed(c, before));
         }
         return out;
@@ -27,7 +27,7 @@ class RevenantTitleTest {
 
     @Test
     void everyTitleIsExactlyTheWindowWidth() {
-        String[] names = {"", "THE CANDY CORN REVENANT", "Spooky Surge 1234/5000", "a", "SURGE BEGINS IN 45S", "x".repeat(80),
+        String[] names = {"", "SPOOKY SURGE CANDY HUNT", "Spooky Surge 1234/5000", "a", "SURGE BEGINS IN 45S", "x".repeat(80),
                 "Pokémon  Trainer", "中文 name", "W".repeat(30)};
         for (String name : names) for (int tier = 0; tier <= 4; tier++) {
             String title = t.title(name, tier);
@@ -57,7 +57,7 @@ class RevenantTitleTest {
 
     @Test
     void nameIsCentredOnThePlate() {
-        for (String name : new String[] {"THE CANDY CORN REVENANT", "SURGE", "A", "SPOOKY SURGE 12/300"}) {
+        for (String name : new String[] {"SPOOKY SURGE CANDY HUNT", "SURGE", "A", "SPOOKY SURGE 12/300"}) {
             String run = t.fit(t.sanitize(name));
             List<Placed> p = replay(t.title(name, 0));
             int first = p.get(2).x();
@@ -98,13 +98,13 @@ class RevenantTitleTest {
 
     @Test
     void demoNameFitsWithoutCutting() {
-        String run = t.sanitize("THE CANDY CORN REVENANT");
+        String run = t.sanitize("SPOOKY SURGE CANDY HUNT");
         assertEquals(run, t.fit(run));
     }
 
     @Test
     void spacesAreExactInBothDirections() {
-        RevenantTitle probe = new RevenantTitle(m);
-        for (int n = -400; n <= 400; n++) assertEquals(n, probe.advanceOf(RevenantTitle.spaces(n)), "spaces(" + n + ")");
+        CandyHuntTitle probe = new CandyHuntTitle(m);
+        for (int n = -400; n <= 400; n++) assertEquals(n, probe.advanceOf(CandyHuntTitle.spaces(n)), "spaces(" + n + ")");
     }
 }

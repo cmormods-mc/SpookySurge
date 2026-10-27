@@ -12,12 +12,12 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 /** The Python twin (tools/bossbar-art/title.py) wrote these titles; the Java layout must produce the exact same strings. */
-class RevenantTitleGoldenTest {
+class CandyHuntTitleGoldenTest {
     @Test
     void javaAndPythonLayoutsAreIdentical() throws Exception {
-        RevenantTitle t = new RevenantTitle(RevenantMetrics.load());
+        CandyHuntTitle t = new CandyHuntTitle(CandyHuntMetrics.load());
         JsonArray cases;
-        try (var in = getClass().getClassLoader().getResourceAsStream("revenant_golden.json")) {
+        try (var in = getClass().getClassLoader().getResourceAsStream("candyhunt_golden.json")) {
             cases = JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8)).getAsJsonArray();
         }
         assertFalse(cases.isEmpty());

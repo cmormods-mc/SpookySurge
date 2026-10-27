@@ -18,7 +18,7 @@ Z = 4
 pad, lab, top = 24, 150, 100
 sheet = Image.new('RGB', (lab + 2 * w + 3 * pad, top + len(STATES) * (h + 12) + 30 + (h * 1) + 220), (24, 22, 32))
 d = ImageDraw.Draw(sheet)
-d.text((pad, 18), 'The Candy Corn Revenant: health states in a real Minecraft 1.21.1 client', font=font(24, True), fill=(250, 240, 220))
+d.text((pad, 18), 'The Spooky Surge Candy Hunt: health states in a real Minecraft 1.21.1 client', font=font(24, True), fill=(250, 240, 220))
 d.text((pad, 52), 'Screen captures at GUI scale 2 (1280x720), 1:1. Left: daylight sky. Right: midnight sky. Tier lights follow the surge tier.', font=font(13), fill=(170, 164, 190))
 y = top
 for pct, note in STATES:

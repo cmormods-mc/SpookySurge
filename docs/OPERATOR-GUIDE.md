@@ -58,7 +58,7 @@ warning and never spawns. After upgrading the mod, new keys take their defaults.
 | Key | Default | Range | Meaning |
 |-----|---------|-------|---------|
 | `enabled` | `true` | | Master switch for scheduled surges. |
-| `bossBar` | `"auto"` | `auto`, `art`, `plain` | `auto`: the Candy Corn Revenant artwork for players whose client has the server's Polymer pack, a plain yellow bar for everyone else. `art`: artwork for everyone (use when the pack is hosted outside Polymer and required). `plain`: never use the artwork. The artwork reserves the YELLOW and BLUE boss-bar colours server-wide; see [bossbar/README.md](bossbar/README.md). |
+| `bossBar` | `"auto"` | `auto`, `art`, `plain` | `auto`: the Spooky Surge Candy Hunt artwork for players whose client has the server's Polymer pack, a plain yellow bar for everyone else. `art`: artwork for everyone (use when the pack is hosted outside Polymer and required). `plain`: never use the artwork. The artwork reserves the YELLOW and BLUE boss-bar colours server-wide; see [bossbar/README.md](bossbar/README.md). |
 | `windowStart`, `windowEnd` | 2026-10-31T04:00Z, 2026-11-03T05:00Z | ISO instants | Scheduled surges only start inside this window. |
 | `timezone` | `America/New_York` | any Java zone id | Zone `startTimes` are read in. |
 | `startTimes` | `["20:00"]` | `HH:mm` list | Local start times, each day of the window. |

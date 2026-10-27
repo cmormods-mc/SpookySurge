@@ -4,20 +4,20 @@ import java.text.Normalizer;
 import java.util.Locale;
 
 /**
- * Builds the boss-bar title string for the Candy Corn Revenant: the two frame glyphs, the glowing tier lights and the boss name set in the
+ * Builds the boss-bar title string for the Spooky Surge Candy Hunt: the two frame glyphs, the glowing tier lights and the boss name set in the
  * pack's own pixel font, all placed with {@code space} characters.
  *
  * <p>The client centres a bar's title on the bar. Every glyph and space here has a known advance, so the title is exactly
- * {@link RevenantMetrics#titleWidth} wide whatever the name is, which keeps the frame's 182x5 window on top of the vanilla bar at every
+ * {@link CandyHuntMetrics#titleWidth} wide whatever the name is, which keeps the frame's 182x5 window on top of the vanilla bar at every
  * GUI scale and every window width. Pure string work: no Minecraft classes, so it can be unit tested.
  */
-public final class RevenantTitle {
+public final class CandyHuntTitle {
     private static final char SPACE_BASE_POS = '';
     private static final char SPACE_BASE_NEG = '';
 
-    private final RevenantMetrics m;
+    private final CandyHuntMetrics m;
 
-    public RevenantTitle(RevenantMetrics metrics) {
+    public CandyHuntTitle(CandyHuntMetrics metrics) {
         this.m = metrics;
     }
 
@@ -80,7 +80,7 @@ public final class RevenantTitle {
         if (!run.isEmpty()) {
             cursor = moveTo(out, cursor, m.canvasCenter - visualWidth(run) / 2);
             for (int i = 0; i < run.length(); i++) {
-                RevenantMetrics.Glyph g = m.glyph(run.charAt(i));
+                CandyHuntMetrics.Glyph g = m.glyph(run.charAt(i));
                 out.appendCodePoint(g.cp);
                 cursor += g.adv;
             }
@@ -125,7 +125,7 @@ public final class RevenantTitle {
     }
 
     private int glyphAdvance(char c) {
-        for (RevenantMetrics.Glyph g : m.letters.values()) if (g.cp == c) return g.adv;
+        for (CandyHuntMetrics.Glyph g : m.letters.values()) if (g.cp == c) return g.adv;
         throw new IllegalArgumentException("unknown glyph U+" + Integer.toHexString(c));
     }
 }

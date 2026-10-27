@@ -6,9 +6,9 @@ import com.spookysurge.SpookySurge;
 import com.spookysurge.api.SurgeEndedCallback;
 import com.spookysurge.config.SurgeConfig;
 import com.spookysurge.config.SurgeConfigStore;
-import com.spookysurge.hud.RevenantBar;
-import com.spookysurge.hud.RevenantPack;
-import com.spookysurge.hud.RevenantPreview;
+import com.spookysurge.hud.CandyHuntBar;
+import com.spookysurge.hud.CandyHuntPack;
+import com.spookysurge.hud.CandyHuntPreview;
 import com.spookysurge.item.SurgeItems;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public final class SurgeManager {
     private static SurgeConfig config = new SurgeConfig();
     private static SurgeState state;
     private static RewardLedger ledger = new RewardLedger(60);
-    private static RevenantBar bar;
+    private static CandyHuntBar bar;
     private static long tick;
 
     /** Per-surge tallies, for the one-line summary in the log. Not persisted: they only exist to make a log readable. */
@@ -65,13 +65,13 @@ public final class SurgeManager {
     private SurgeManager() {}
 
     public static void register() {
-        RevenantPack.register();
-        RevenantBar.registerHooks();
-        RevenantPreview.register();
+        CandyHuntPack.register();
+        CandyHuntBar.registerHooks();
+        CandyHuntPreview.register();
         ServerLifecycleEvents.SERVER_STARTED.register(server -> guard("start", () -> {
             config = SurgeConfigStore.load();
-        RevenantBar.setPolicy(RevenantBar.Policy.parse(config.bossBar));
-            RevenantBar.setPolicy(RevenantBar.Policy.parse(config.bossBar));
+        CandyHuntBar.setPolicy(CandyHuntBar.Policy.parse(config.bossBar));
+            CandyHuntBar.setPolicy(CandyHuntBar.Policy.parse(config.bossBar));
             state = SurgeState.get(server);
             ledger = new RewardLedger(config.perPlayerRewardCap);
             ledger.restore(state.actions);
@@ -119,7 +119,7 @@ public final class SurgeManager {
 
     public static void reload(MinecraftServer server) {
         config = SurgeConfigStore.load();
-        RevenantBar.setPolicy(RevenantBar.Policy.parse(config.bossBar));
+        CandyHuntBar.setPolicy(CandyHuntBar.Policy.parse(config.bossBar));
         checkSpecies();
         ledger = new RewardLedger(config.perPlayerRewardCap);
         ledger.restore(state.actions);
@@ -456,18 +456,19 @@ public final class SurgeManager {
             clearBar();
             return;
         }
-        if (bar == null) bar = new RevenantBar("SPOOKY SURGE", "Spooky Surge");
+        if (bar == null) bar = new CandyHuntBar("SPOOKY SURGE CANDY HUNT", "Spooky Surge Candy Hunt");
         long now = System.currentTimeMillis();
         if (state.phase == SurgeState.Phase.COUNTDOWN) {
             long left = Math.max(0, (state.phaseEndsAt - now) / 1000);
-            bar.setNames("SURGE BEGINS IN " + left + "S", "Spooky Surge begins in " + left + "s");
+            bar.setNames("CANDY HUNT BEGINS IN " + left + "S", "Spooky Surge Candy Hunt begins in " + left + "s");
             bar.setTier(0);
             bar.setProgress(left / (float) Math.max(1, config.countdownSeconds));
         } else {
             int target = target(server);
             long left = Math.max(0, (state.phaseEndsAt - now) / 1000);
-            bar.setNames("SPOOKY SURGE " + state.counter + "/" + target,
-                    String.format("Spooky Surge  |  Tier %d  |  %d / %d  |  %d:%02d left", state.maxTier, state.counter, target, left / 60, left % 60));
+            // The artwork's banner carries the event's name; the fill and the lit pumpkins show progress. Exact numbers are in the plain text.
+            bar.setNames("SPOOKY SURGE CANDY HUNT",
+                    String.format("Spooky Surge Candy Hunt  |  Tier %d  |  %d / %d  |  %d:%02d left", state.maxTier, state.counter, target, left / 60, left % 60));
             bar.setTier(state.maxTier);
             bar.setProgress(state.counter / (float) Math.max(1, target));
         }

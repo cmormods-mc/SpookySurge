@@ -1,6 +1,6 @@
-"""Builds docs/bossbar/revenant-preview-pack.zip (pack_format 34, 1.21.1) and docs/bossbar/demo_commands.txt.
+"""Builds docs/bossbar/candyhunt-preview-pack.zip (pack_format 34, 1.21.1) and docs/bossbar/demo_commands.txt.
 
-The pack holds only the Revenant art. Dropped into resourcepacks/ it replaces the YELLOW and BLUE boss-bar sprites and adds the font; the demo
+The pack holds only the CandyHunt art. Dropped into resourcepacks/ it replaces the YELLOW and BLUE boss-bar sprites and adds the font; the demo
 commands then show the bar on a vanilla server with /bossbar (no mod needed), one block per health state.
 """
 import json, os, sys, zipfile
@@ -17,25 +17,25 @@ FILES = [
     'assets/minecraft/textures/gui/sprites/boss_bar/yellow_progress.png.mcmeta',
     'assets/minecraft/textures/gui/sprites/boss_bar/blue_background.png',
     'assets/minecraft/textures/gui/sprites/boss_bar/blue_progress.png',
-    'assets/spookysurge/font/revenant.json',
-    'assets/spookysurge/textures/font/revenant/frame_l.png',
-    'assets/spookysurge/textures/font/revenant/frame_r.png',
-    'assets/spookysurge/textures/font/revenant/tier_lit.png',
-    'assets/spookysurge/textures/font/revenant/letters.png',
+    'assets/spookysurge/font/candyhunt.json',
+    'assets/spookysurge/textures/font/candyhunt/frame_l.png',
+    'assets/spookysurge/textures/font/candyhunt/frame_r.png',
+    'assets/spookysurge/textures/font/candyhunt/tier_lit.png',
+    'assets/spookysurge/textures/font/candyhunt/letters.png',
 ]
 STATES = [(100, 4), (75, 3), (50, 2), (25, 1), (10, 0), (0, 0)]
 
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    zpath = os.path.join(OUT, 'revenant-preview-pack.zip')
+    zpath = os.path.join(OUT, 'candyhunt-preview-pack.zip')
     with zipfile.ZipFile(zpath, 'w', zipfile.ZIP_DEFLATED) as z:
-        z.writestr('pack.mcmeta', json.dumps({"pack": {"pack_format": 34, "description": "Candy Corn Revenant boss bar (preview)"}}, indent=1))
+        z.writestr('pack.mcmeta', json.dumps({"pack": {"pack_format": 34, "description": "Spooky Surge Candy Hunt boss bar (preview)"}}, indent=1))
         for f in FILES: z.write(os.path.join(RES, f), f)
-    lines = ['# Candy Corn Revenant: vanilla /bossbar demo. Needs revenant-preview-pack.zip loaded on the client.',
+    lines = ['# Spooky Surge Candy Hunt: vanilla /bossbar demo. Needs candyhunt-preview-pack.zip loaded on the client.',
              '# Each state is three bars in this order: BLUE spacer, YELLOW art bar, BLUE tail spacer. Run on a server where you are an operator.',
              '# Replace @s with your name if you run it from the console. Remove everything afterwards with the cleanup block at the end.', '']
-    name = 'THE CANDY CORN REVENANT'
+    name = 'SPOOKY SURGE CANDY HUNT'
     for pct, tier in STATES:
         i = f'demo{pct}'
         lines += [f'# --- {pct}% health, tier {tier} lights',
