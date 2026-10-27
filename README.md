@@ -14,6 +14,12 @@ bonuses together. Players earn **Candy Corn**, a custom item you can sell or acc
 - [Candy Corn guide](docs/CANDY-CORN.md): the item id and how to use it in a vendor.
 - [Staging checklist](docs/STAGING-CHECKLIST.md): what to check on a test server before the event.
 
+## Screenshots
+
+Real-client screenshots (a Minecraft 1.21.1 Fabric client with Cobblemon, joined to a test server) are in
+[docs/screenshots](docs/screenshots/README.md): the countdown, a catch paying Candy Corn, the item's model and
+tooltip, and the Haunted Visitor.
+
 ## Candy Corn
 
 The item id is `spookysurge:candy_corn`.
