@@ -77,7 +77,10 @@ async function phase(name, samples, { withStatus = false } = {}) {
   }
   await sleep((PER_PROCESS * 1.2 + 6) * 1000);
   await sleep(5000);
-  H.cmd('spreadplayers 0 0 60 600 false @a');
+  // Spread the players, but inside ground that is already generated: sending 30 players into 30 fresh
+  // areas makes the server generate thousands of chunks at once, stalls it for more than 30 seconds,
+  // and the bots time out. That measures world generation, not the surge.
+  H.cmd(process.env.SPREAD || 'spreadplayers 110 175 30 90 false @a');
   await sleep(SETTLE * 1000);
   result.push(await phase(`${N} bots, no surge`, 6));
 
