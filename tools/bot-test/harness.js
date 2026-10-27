@@ -35,7 +35,9 @@ async function status() {
   const t = logText().slice(from);
   const run = t.match(/Surge running: tier (\d+), (\d+) \/ (\d+)/);
   const live = t.match(/alive: (\d+) \(spawned (\d+), credited (\d+), expired (\d+)\)/);
+  const work = t.match(/Surge work per second: avg ([\d.]+) ms, max ([\d.]+) ms \(spawning: avg ([\d.]+) ms, max ([\d.]+) ms\)/);
   return {
+    workAvgMs: work ? +work[1] : null, workMaxMs: work ? +work[2] : null, spawnAvgMs: work ? +work[3] : null, spawnMaxMs: work ? +work[4] : null,
     tier: run ? +run[1] : null, counter: run ? +run[2] : null, target: run ? +run[3] : null,
     alive: live ? +live[1] : null, spawned: live ? +live[2] : null, credited: live ? +live[3] : null, expired: live ? +live[4] : null,
   };

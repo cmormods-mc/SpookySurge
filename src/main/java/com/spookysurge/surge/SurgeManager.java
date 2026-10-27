@@ -53,6 +53,9 @@ public final class SurgeManager {
     private static int creditedCount;
     private static int expiredCount;
 
+    /** How long the surge's own once-a-second work takes, so an operator can see what it costs. Not persisted. */
+    private static long workNanos, workMaxNanos, workSeconds, spawnNanos, spawnMaxNanos;
+
     private record Tracked(ResourceKey<Level> dimension, UUID owner, long expiresAtTick) {}
 
     private static final Map<UUID, Tracked> tracked = new HashMap<>();
@@ -117,8 +120,11 @@ public final class SurgeManager {
 
     /** One line for {@code /surge status}: how many surge Pokemon are alive and how this surge has gone so far. */
     public static String progressLine() {
+        String work = workSeconds == 0 ? "" : String.format(java.util.Locale.ROOT,
+                " | Surge work per second: avg %.2f ms, max %.2f ms (spawning: avg %.2f ms, max %.2f ms) over %d s",
+                workNanos / 1e6 / workSeconds, workMaxNanos / 1e6, spawnNanos / 1e6 / workSeconds, spawnMaxNanos / 1e6, workSeconds);
         return "Surge Pokemon alive: " + tracked.size() + " (spawned " + spawnedCount + ", credited " + creditedCount
-                + ", expired " + expiredCount + ")";
+                + ", expired " + expiredCount + ")" + work;
     }
 
     public static int target(MinecraftServer server) {
@@ -140,6 +146,7 @@ public final class SurgeManager {
         spawnedCount = 0;
         creditedCount = 0;
         expiredCount = 0;
+        workNanos = workMaxNanos = workSeconds = spawnNanos = spawnMaxNanos = 0;
         ledger = new RewardLedger(config.perPlayerRewardCap);
         if (slotKey != null) state.startedSlots.add(slotKey);
         if (startMs > now) {
@@ -205,6 +212,20 @@ public final class SurgeManager {
         if (state == null || !config.enabled) return;
         tick++;
         if (tick % 20 != 0) return;
+        long started = System.nanoTime();
+        try {
+            onSecond(server);
+        } finally {
+            if (state.phase == SurgeState.Phase.ACTIVE) {
+                long took = System.nanoTime() - started;
+                workNanos += took;
+                workMaxNanos = Math.max(workMaxNanos, took);
+                workSeconds++;
+            }
+        }
+    }
+
+    private static void onSecond(MinecraftServer server) {
         long now = System.currentTimeMillis();
         switch (state.phase) {
             case IDLE -> {
@@ -221,7 +242,11 @@ public final class SurgeManager {
                     stopSurge(server, true);
                     return;
                 }
+                long spawnStarted = System.nanoTime();
                 spawnStep(server);
+                long spawnTook = System.nanoTime() - spawnStarted;
+                spawnNanos += spawnTook;
+                spawnMaxNanos = Math.max(spawnMaxNanos, spawnTook);
                 expireStep(server);
             }
         }

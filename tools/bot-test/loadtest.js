@@ -40,6 +40,8 @@ function serverRssMb() {
 }
 const load1 = () => +fs.readFileSync('/proc/loadavg', 'utf8').split(' ')[0];
 
+const lastOf = (rows, k) => { const v = rows.map((r) => r[k]).filter((x) => x != null); return v.length ? v[v.length - 1] : undefined; };
+
 async function phase(name, samples, { withStatus = false } = {}) {
   const rows = [];
   for (let i = 0; i < samples; i++) {
@@ -56,6 +58,7 @@ async function phase(name, samples, { withStatus = false } = {}) {
   const summary = {
     phase: name, players: N, samples: ok.length, avgMs: mean('avg'), p95Ms: mean('p95'), p99MaxMs: max('p99'), worstAvgMs: max('avg'),
     online: Math.min(...rows.map((r) => r.online == null ? 1e9 : r.online)), rssMb: Math.max(...rows.map((r) => r.rssMb || 0)), load1: max('load1'), alivePeak: alive.length ? Math.max(...alive) : undefined,
+    surgeWorkAvgMs: lastOf(rows, 'workAvgMs'), surgeWorkMaxMs: lastOf(rows, 'workMaxMs'), surgeSpawnMaxMs: lastOf(rows, 'spawnMaxMs'),
   };
   console.log(JSON.stringify(summary));
   return { summary, rows };
