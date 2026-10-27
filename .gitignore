@@ -5,3 +5,7 @@ run/
 *.iml
 .vscode/
 logs/
+
+# bossbar art tooling
+tools/bossbar-art/__pycache__/
+tools/bossbar-art/frame_full.png

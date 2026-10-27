@@ -45,6 +45,8 @@ writes `config/spookysurge/server.json` with every key at its default.
 | `/surge reload` | op level 2 | Re-read the config and re-check species ids. |
 | `/surge add <n>` | op level 2 | Add to (or subtract from) the counter. For testing. |
 | `/surge tier <1-4>` | op level 2 | Raise the counter to a tier's threshold. For testing. |
+| `/surge bar preview <0-100> <0-4> [name]` | op level 2 | Show the boss bar art to yourself for 60 s (health, tier lights, name). Also tells you whether your client got the artwork or the plain fallback. |
+| `/surge bar off` | op level 2 | Remove your preview. |
 
 ## Config reference: `config/spookysurge/server.json`
 
@@ -56,6 +58,7 @@ warning and never spawns. After upgrading the mod, new keys take their defaults.
 | Key | Default | Range | Meaning |
 |-----|---------|-------|---------|
 | `enabled` | `true` | | Master switch for scheduled surges. |
+| `bossBar` | `"auto"` | `auto`, `art`, `plain` | `auto`: the Candy Corn Revenant artwork for players whose client has the server's Polymer pack, a plain yellow bar for everyone else. `art`: artwork for everyone (use when the pack is hosted outside Polymer and required). `plain`: never use the artwork. The artwork reserves the YELLOW and BLUE boss-bar colours server-wide; see [bossbar/README.md](bossbar/README.md). |
 | `windowStart`, `windowEnd` | 2026-10-31T04:00Z, 2026-11-03T05:00Z | ISO instants | Scheduled surges only start inside this window. |
 | `timezone` | `America/New_York` | any Java zone id | Zone `startTimes` are read in. |
 | `startTimes` | `["20:00"]` | `HH:mm` list | Local start times, each day of the window. |

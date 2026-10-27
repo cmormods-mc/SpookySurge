@@ -6,6 +6,9 @@ import com.spookysurge.SpookySurge;
 import com.spookysurge.api.SurgeEndedCallback;
 import com.spookysurge.config.SurgeConfig;
 import com.spookysurge.config.SurgeConfigStore;
+import com.spookysurge.hud.RevenantBar;
+import com.spookysurge.hud.RevenantPack;
+import com.spookysurge.hud.RevenantPreview;
 import com.spookysurge.item.SurgeItems;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -24,10 +27,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.BossEvent;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
@@ -45,7 +46,7 @@ public final class SurgeManager {
     private static SurgeConfig config = new SurgeConfig();
     private static SurgeState state;
     private static RewardLedger ledger = new RewardLedger(60);
-    private static ServerBossEvent bar;
+    private static RevenantBar bar;
     private static long tick;
 
     /** Per-surge tallies, for the one-line summary in the log. Not persisted: they only exist to make a log readable. */
@@ -64,8 +65,13 @@ public final class SurgeManager {
     private SurgeManager() {}
 
     public static void register() {
+        RevenantPack.register();
+        RevenantBar.registerHooks();
+        RevenantPreview.register();
         ServerLifecycleEvents.SERVER_STARTED.register(server -> guard("start", () -> {
             config = SurgeConfigStore.load();
+        RevenantBar.setPolicy(RevenantBar.Policy.parse(config.bossBar));
+            RevenantBar.setPolicy(RevenantBar.Policy.parse(config.bossBar));
             state = SurgeState.get(server);
             ledger = new RewardLedger(config.perPlayerRewardCap);
             ledger.restore(state.actions);
@@ -113,6 +119,7 @@ public final class SurgeManager {
 
     public static void reload(MinecraftServer server) {
         config = SurgeConfigStore.load();
+        RevenantBar.setPolicy(RevenantBar.Policy.parse(config.bossBar));
         checkSpecies();
         ledger = new RewardLedger(config.perPlayerRewardCap);
         ledger.restore(state.actions);
@@ -439,7 +446,7 @@ public final class SurgeManager {
     private static void onJoin(ServerPlayer player) {
         if (state == null) return;
         claim(player);
-        if (bar != null) bar.addPlayer(player);
+        if (bar != null) bar.addViewer(player);
     }
 
     // ---------------------------------------------------------------- bossbar
@@ -449,27 +456,26 @@ public final class SurgeManager {
             clearBar();
             return;
         }
-        if (bar == null) {
-            // PURPLE: the World Boss bar uses PINK, and AscensionLib reskins that colour.
-            bar = new ServerBossEvent(Component.literal("Spooky Surge"), BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS);
-        }
+        if (bar == null) bar = new RevenantBar("SPOOKY SURGE", "Spooky Surge");
         long now = System.currentTimeMillis();
         if (state.phase == SurgeState.Phase.COUNTDOWN) {
             long left = Math.max(0, (state.phaseEndsAt - now) / 1000);
-            bar.setName(Component.literal("Spooky Surge begins in " + left + "s"));
-            bar.setProgress(Math.max(0f, Math.min(1f, left / (float) Math.max(1, config.countdownSeconds))));
+            bar.setNames("SURGE BEGINS IN " + left + "S", "Spooky Surge begins in " + left + "s");
+            bar.setTier(0);
+            bar.setProgress(left / (float) Math.max(1, config.countdownSeconds));
         } else {
             int target = target(server);
             long left = Math.max(0, (state.phaseEndsAt - now) / 1000);
-            bar.setName(Component.literal(String.format("Spooky Surge  |  Tier %d  |  %d / %d  |  %d:%02d left",
-                    state.maxTier, state.counter, target, left / 60, left % 60)));
-            bar.setProgress(Math.max(0f, Math.min(1f, state.counter / (float) Math.max(1, target))));
+            bar.setNames("SPOOKY SURGE " + state.counter + "/" + target,
+                    String.format("Spooky Surge  |  Tier %d  |  %d / %d  |  %d:%02d left", state.maxTier, state.counter, target, left / 60, left % 60));
+            bar.setTier(state.maxTier);
+            bar.setProgress(state.counter / (float) Math.max(1, target));
         }
-        for (ServerPlayer player : server.getPlayerList().getPlayers()) bar.addPlayer(player);
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) bar.addViewer(player);
     }
 
     private static void clearBar() {
-        if (bar != null) bar.removeAllPlayers();
+        if (bar != null) bar.close();
         bar = null;
     }
 

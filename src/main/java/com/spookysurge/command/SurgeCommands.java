@@ -2,7 +2,10 @@ package com.spookysurge.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.spookysurge.hud.RevenantBar;
+import com.spookysurge.hud.RevenantPreview;
 import com.spookysurge.surge.SurgeManager;
 import com.spookysurge.surge.SurgeState;
 import java.time.Instant;
@@ -40,6 +43,14 @@ public final class SurgeCommands {
                 .then(Commands.literal("add").requires(s -> s.hasPermission(2))
                         .then(Commands.argument("amount", IntegerArgumentType.integer(-100_000, 100_000))
                                 .executes(ctx -> add(ctx, IntegerArgumentType.getInteger(ctx, "amount")))))
+                .then(Commands.literal("bar").requires(s -> s.hasPermission(2))
+                        .then(Commands.literal("off").executes(SurgeCommands::barOff))
+                        .then(Commands.literal("preview")
+                                .then(Commands.argument("percent", IntegerArgumentType.integer(0, 100))
+                                        .then(Commands.argument("tier", IntegerArgumentType.integer(0, 4))
+                                                .executes(ctx -> barPreview(ctx, RevenantPreview.DEFAULT_NAME))
+                                                .then(Commands.argument("name", StringArgumentType.greedyString())
+                                                        .executes(ctx -> barPreview(ctx, StringArgumentType.getString(ctx, "name"))))))))
                 .then(Commands.literal("tier").requires(s -> s.hasPermission(2))
                         .then(Commands.argument("tier", IntegerArgumentType.integer(1, 4))
                                 .executes(ctx -> tier(ctx, IntegerArgumentType.getInteger(ctx, "tier"))))));
@@ -92,6 +103,19 @@ public final class SurgeCommands {
     private static int stop(CommandContext<CommandSourceStack> ctx) {
         SurgeManager.stopSurge(ctx.getSource().getServer(), true);
         return ok(ctx, "Surge stopped.");
+    }
+
+    private static int barPreview(CommandContext<CommandSourceStack> ctx, String name) {
+        if (!(ctx.getSource().getEntity() instanceof ServerPlayer player)) return fail(ctx, "Only a player can look at the bar.");
+        int percent = IntegerArgumentType.getInteger(ctx, "percent"), tier = IntegerArgumentType.getInteger(ctx, "tier");
+        RevenantBar.Mode mode = RevenantPreview.show(player, percent, tier, name);
+        return ok(ctx, "Showing the " + (mode == RevenantBar.Mode.ART ? "artwork" : "plain fallback") + " bar for 60 seconds ("
+                + percent + "%, tier " + tier + "). /surge bar off removes it.");
+    }
+
+    private static int barOff(CommandContext<CommandSourceStack> ctx) {
+        if (ctx.getSource().getEntity() instanceof ServerPlayer player && RevenantPreview.clear(player)) return ok(ctx, "Preview removed.");
+        return fail(ctx, "You have no preview showing.");
     }
 
     private static int reload(CommandContext<CommandSourceStack> ctx) {

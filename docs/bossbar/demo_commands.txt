@@ -1,0 +1,131 @@
+# Candy Corn Revenant: vanilla /bossbar demo. Needs revenant-preview-pack.zip loaded on the client.
+# Each state is three bars in this order: BLUE spacer, YELLOW art bar, BLUE tail spacer. Run on a server where you are an operator.
+# Replace @s with your name if you run it from the console. Remove everything afterwards with the cleanup block at the end.
+
+# --- 100% health, tier 4 lights
+bossbar add minecraft:demo100a {"text":""}
+bossbar set minecraft:demo100a color blue
+bossbar set minecraft:demo100a players @s
+bossbar add minecraft:demo100b {"text": "\ue000\ue301\ue002\ue380\ue320\ue310\ue308\ue001\ue220\ue001\ue210\ue208\ue204\ue202\ue201\ue001\ue210\ue208\ue204\ue202\ue201\ue001\ue380\ue320\ue302\ue301\ue113\ue107\ue104\ue1ff\ue102\ue100\ue10d\ue103\ue118\ue1ff\ue102\ue10e\ue111\ue10d\ue1ff\ue111\ue104\ue115\ue104\ue10d\ue100\ue10d\ue113\ue240", "font": "spookysurge:revenant", "color": "white"}
+bossbar set minecraft:demo100b color yellow
+bossbar set minecraft:demo100b max 100
+bossbar set minecraft:demo100b value 100
+bossbar set minecraft:demo100b players @s
+bossbar add minecraft:demo100c {"text":""}
+bossbar set minecraft:demo100c color blue
+bossbar set minecraft:demo100c players @s
+
+# to show the next state, first run (uncomment):
+# bossbar remove minecraft:demo100a
+# bossbar remove minecraft:demo100b
+# bossbar remove minecraft:demo100c
+
+# --- 75% health, tier 3 lights
+bossbar add minecraft:demo75a {"text":""}
+bossbar set minecraft:demo75a color blue
+bossbar set minecraft:demo75a players @s
+bossbar add minecraft:demo75b {"text": "\ue000\ue301\ue002\ue380\ue320\ue310\ue308\ue001\ue220\ue001\ue210\ue208\ue204\ue202\ue201\ue001\ue340\ue320\ue310\ue304\ue302\ue113\ue107\ue104\ue1ff\ue102\ue100\ue10d\ue103\ue118\ue1ff\ue102\ue10e\ue111\ue10d\ue1ff\ue111\ue104\ue115\ue104\ue10d\ue100\ue10d\ue113\ue240", "font": "spookysurge:revenant", "color": "white"}
+bossbar set minecraft:demo75b color yellow
+bossbar set minecraft:demo75b max 100
+bossbar set minecraft:demo75b value 75
+bossbar set minecraft:demo75b players @s
+bossbar add minecraft:demo75c {"text":""}
+bossbar set minecraft:demo75c color blue
+bossbar set minecraft:demo75c players @s
+
+# to show the next state, first run (uncomment):
+# bossbar remove minecraft:demo75a
+# bossbar remove minecraft:demo75b
+# bossbar remove minecraft:demo75c
+
+# --- 50% health, tier 2 lights
+bossbar add minecraft:demo50a {"text":""}
+bossbar set minecraft:demo50a color blue
+bossbar set minecraft:demo50a players @s
+bossbar add minecraft:demo50b {"text": "\ue000\ue301\ue002\ue380\ue320\ue310\ue308\ue001\ue220\ue001\ue340\ue308\ue301\ue113\ue107\ue104\ue1ff\ue102\ue100\ue10d\ue103\ue118\ue1ff\ue102\ue10e\ue111\ue10d\ue1ff\ue111\ue104\ue115\ue104\ue10d\ue100\ue10d\ue113\ue240", "font": "spookysurge:revenant", "color": "white"}
+bossbar set minecraft:demo50b color yellow
+bossbar set minecraft:demo50b max 100
+bossbar set minecraft:demo50b value 50
+bossbar set minecraft:demo50b players @s
+bossbar add minecraft:demo50c {"text":""}
+bossbar set minecraft:demo50c color blue
+bossbar set minecraft:demo50c players @s
+
+# to show the next state, first run (uncomment):
+# bossbar remove minecraft:demo50a
+# bossbar remove minecraft:demo50b
+# bossbar remove minecraft:demo50c
+
+# --- 25% health, tier 1 lights
+bossbar add minecraft:demo25a {"text":""}
+bossbar set minecraft:demo25a color blue
+bossbar set minecraft:demo25a players @s
+bossbar add minecraft:demo25b {"text": "\ue000\ue301\ue002\ue380\ue320\ue310\ue308\ue001\ue310\ue308\ue302\ue301\ue113\ue107\ue104\ue1ff\ue102\ue100\ue10d\ue103\ue118\ue1ff\ue102\ue10e\ue111\ue10d\ue1ff\ue111\ue104\ue115\ue104\ue10d\ue100\ue10d\ue113\ue240", "font": "spookysurge:revenant", "color": "white"}
+bossbar set minecraft:demo25b color yellow
+bossbar set minecraft:demo25b max 100
+bossbar set minecraft:demo25b value 25
+bossbar set minecraft:demo25b players @s
+bossbar add minecraft:demo25c {"text":""}
+bossbar set minecraft:demo25c color blue
+bossbar set minecraft:demo25c players @s
+
+# to show the next state, first run (uncomment):
+# bossbar remove minecraft:demo25a
+# bossbar remove minecraft:demo25b
+# bossbar remove minecraft:demo25c
+
+# --- 10% health, tier 0 lights
+bossbar add minecraft:demo10a {"text":""}
+bossbar set minecraft:demo10a color blue
+bossbar set minecraft:demo10a players @s
+bossbar add minecraft:demo10b {"text": "\ue000\ue301\ue002\ue380\ue340\ue304\ue301\ue113\ue107\ue104\ue1ff\ue102\ue100\ue10d\ue103\ue118\ue1ff\ue102\ue10e\ue111\ue10d\ue1ff\ue111\ue104\ue115\ue104\ue10d\ue100\ue10d\ue113\ue240", "font": "spookysurge:revenant", "color": "white"}
+bossbar set minecraft:demo10b color yellow
+bossbar set minecraft:demo10b max 100
+bossbar set minecraft:demo10b value 10
+bossbar set minecraft:demo10b players @s
+bossbar add minecraft:demo10c {"text":""}
+bossbar set minecraft:demo10c color blue
+bossbar set minecraft:demo10c players @s
+
+# to show the next state, first run (uncomment):
+# bossbar remove minecraft:demo10a
+# bossbar remove minecraft:demo10b
+# bossbar remove minecraft:demo10c
+
+# --- 0% health, tier 0 lights
+bossbar add minecraft:demo0a {"text":""}
+bossbar set minecraft:demo0a color blue
+bossbar set minecraft:demo0a players @s
+bossbar add minecraft:demo0b {"text": "\ue000\ue301\ue002\ue380\ue340\ue304\ue301\ue113\ue107\ue104\ue1ff\ue102\ue100\ue10d\ue103\ue118\ue1ff\ue102\ue10e\ue111\ue10d\ue1ff\ue111\ue104\ue115\ue104\ue10d\ue100\ue10d\ue113\ue240", "font": "spookysurge:revenant", "color": "white"}
+bossbar set minecraft:demo0b color yellow
+bossbar set minecraft:demo0b max 100
+bossbar set minecraft:demo0b value 0
+bossbar set minecraft:demo0b players @s
+bossbar add minecraft:demo0c {"text":""}
+bossbar set minecraft:demo0c color blue
+bossbar set minecraft:demo0c players @s
+
+# to show the next state, first run (uncomment):
+# bossbar remove minecraft:demo0a
+# bossbar remove minecraft:demo0b
+# bossbar remove minecraft:demo0c
+
+# --- cleanup
+bossbar remove minecraft:demo100a
+bossbar remove minecraft:demo100b
+bossbar remove minecraft:demo100c
+bossbar remove minecraft:demo75a
+bossbar remove minecraft:demo75b
+bossbar remove minecraft:demo75c
+bossbar remove minecraft:demo50a
+bossbar remove minecraft:demo50b
+bossbar remove minecraft:demo50c
+bossbar remove minecraft:demo25a
+bossbar remove minecraft:demo25b
+bossbar remove minecraft:demo25c
+bossbar remove minecraft:demo10a
+bossbar remove minecraft:demo10b
+bossbar remove minecraft:demo10c
+bossbar remove minecraft:demo0a
+bossbar remove minecraft:demo0b
+bossbar remove minecraft:demo0c

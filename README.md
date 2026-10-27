@@ -12,6 +12,7 @@ bonuses together. Players earn **Candy Corn**, a custom item you can sell or acc
 
 - [Operator guide](docs/OPERATOR-GUIDE.md): how a surge plays, commands, and every config key.
 - [Candy Corn guide](docs/CANDY-CORN.md): the item id and how to use it in a vendor.
+- [Boss bar artwork](docs/bossbar/README.md): the Candy Corn Revenant bar, how it is rendered, reserved colours, pack delivery, limits ([validation report](docs/bossbar/VALIDATION.md)).
 - [Staging checklist](docs/STAGING-CHECKLIST.md): what to check on a test server before the event.
 
 ## Screenshots

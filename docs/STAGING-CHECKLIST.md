@@ -21,6 +21,12 @@ Run this once on a test server before the event. Tick each line only when you sa
 14. Optional: set `xpBonusEnabled` to `true`, `/surge reload`, start a surge at tier 2 or above and
     check a battle's experience is about 25% higher.
 
+15. Boss bar artwork: with the pack accepted, `/surge bar preview 100 4` shows the candy-corn frame with four lit
+    pumpkins and `/surge bar preview 20 1 A very long boss name that does not fit` cuts the name with `...`.
+    Decline the pack on a second account (or clear `servers.dat`): the preview must say it shows the plain
+    fallback and you see one ordinary yellow bar. Details in [bossbar/VALIDATION.md](bossbar/VALIDATION.md).
+16. Confirm no other mod on the server uses YELLOW or BLUE boss bars (the artwork replaces those sprites for everyone).
+
 ## Bots
 
 `tools/bot-test` has mineflayer bots and a scenario suite that exercise steps 4 to 13 (spawning, catch

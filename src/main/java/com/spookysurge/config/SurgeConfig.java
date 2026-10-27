@@ -11,6 +11,9 @@ import java.util.List;
 public final class SurgeConfig {
     public boolean enabled = true;
 
+    /** The boss bar: "auto" (art for players whose client has the server's resource pack, plain text for everyone else), "art" or "plain". */
+    public String bossBar = "auto";
+
     /** The event window, as UTC instants. Automatic surges only start inside it. */
     public String windowStart = "2026-10-31T04:00:00Z";
     public String windowEnd = "2026-11-03T05:00:00Z";
@@ -107,6 +110,10 @@ public final class SurgeConfig {
      * back to their defaults. Each repair is appended to {@code problems} so the caller can log it.
      */
     public SurgeConfig validated(List<String> problems) {
+        if (bossBar == null || !List.of("auto", "art", "plain").contains(bossBar.trim().toLowerCase())) {
+            problems.add("bossBar must be auto, art or plain; reset to auto");
+            bossBar = "auto";
+        }
         countdownSeconds = clamp("countdownSeconds", countdownSeconds, 0, 600, problems);
         durationMinutes = clamp("durationMinutes", durationMinutes, 1, 240, problems);
         spawnIntervalTicks = clamp("spawnIntervalTicks", spawnIntervalTicks, 20, 1200, problems);
