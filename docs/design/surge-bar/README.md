@@ -1,3 +1,5 @@
+> **Decided.** The Spooky Surge Candy Hunt bar (see [../../bossbar/README.md](../../bossbar/README.md)) is the bar the mod ships. The concepts below were the exploration that led to it.
+
 # Surge bar concepts
 
 Exploration only: nothing in the mod uses these yet. The renders are real frames from a Minecraft 1.21.1 client
