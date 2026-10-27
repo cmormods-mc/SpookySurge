@@ -20,3 +20,10 @@ Run this once on a test server before the event. Tick each line only when you sa
 13. Log out with owed Candy Corn (after step 12), join again. It arrives, or `/surge claim` pays it.
 14. Optional: set `xpBonusEnabled` to `true`, `/surge reload`, start a surge at tier 2 or above and
     check a battle's experience is about 25% higher.
+
+## Bots
+
+`tools/bot-test` has mineflayer bots and a scenario suite that exercise steps 4 to 13 (spawning, catch
+payouts, tiers, the reward cap, the end bonus and an offline claim, the Visitor, expiry, and several players)
+against a throwaway server. They do not replace a human run: they cannot see models, particles, the resource
+pack, or battle wins. See `tools/bot-test/README.md`.
