@@ -293,7 +293,6 @@ public final class SurgeManager {
         StringBuilder perks = new StringBuilder("More haunted Pokemon are rising.");
         if (tier >= config.shinyTier) perks.append(" Shiny odds are up.");
         if (tier >= config.doubleCandyTier) perks.append(" Candy Corn is doubled.");
-        if (tier >= config.visitorTier) perks.append(" A Haunted Visitor has appeared!");
         return perks.toString();
     }
 
