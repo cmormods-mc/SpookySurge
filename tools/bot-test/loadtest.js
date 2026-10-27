@@ -6,8 +6,9 @@
 // 50 ms is the 20 TPS budget. The bots run on the same machine as the server unless you run this
 // elsewhere, so they take CPU from it; treat the numbers as a worst case and watch the load average.
 const fs = require('fs');
-const { execSync } = require('child_process');
-const { createSurgeBot, sleep } = require('./surgebot');
+const { execSync, fork } = require('child_process');
+const path = require('path');
+const { sleep } = require('./surgebot');
 const H = require('./harness');
 
 const N = Number(process.argv[2] || 20);
@@ -24,6 +25,13 @@ async function sampleTick() {
   return avg && p ? { avg: +avg[1], p50: +p[1], p95: +p[2], p99: +p[3] } : null;
 }
 
+async function online() {
+  const from = H.logOffset();
+  H.cmd('list');
+  const m = await H.waitLog(/There are (\d+) of a max of (\d+) players online/, { from, timeoutMs: 4000 });
+  return m ? +m[1] : null;
+}
+
 function serverRssMb() {
   try {
     const pid = execSync('pgrep -f KnotServer | head -1').toString().trim();
@@ -37,7 +45,7 @@ async function phase(name, samples, { withStatus = false } = {}) {
   for (let i = 0; i < samples; i++) {
     await sleep(5000);
     const t = await sampleTick();
-    const row = { ...t, rssMb: serverRssMb(), load1: load1() };
+    const row = { ...t, rssMb: serverRssMb(), load1: load1(), online: await online() };
     if (withStatus && i % 3 === 0) Object.assign(row, await H.status());
     rows.push(row);
   }
@@ -47,7 +55,7 @@ async function phase(name, samples, { withStatus = false } = {}) {
   const alive = rows.map((r) => r.alive).filter((x) => x != null);
   const summary = {
     phase: name, players: N, samples: ok.length, avgMs: mean('avg'), p95Ms: mean('p95'), p99MaxMs: max('p99'), worstAvgMs: max('avg'),
-    rssMb: Math.max(...rows.map((r) => r.rssMb || 0)), load1: max('load1'), alivePeak: alive.length ? Math.max(...alive) : undefined,
+    online: Math.min(...rows.map((r) => r.online == null ? 1e9 : r.online)), rssMb: Math.max(...rows.map((r) => r.rssMb || 0)), load1: max('load1'), alivePeak: alive.length ? Math.max(...alive) : undefined,
   };
   console.log(JSON.stringify(summary));
   return { summary, rows };
@@ -59,11 +67,15 @@ async function phase(name, samples, { withStatus = false } = {}) {
   await sleep(3000);
   result.push(await phase('idle (no bots, no surge)', 6));
 
-  const bots = [];
-  for (let i = 0; i < N; i++) {
-    bots.push(createSurgeBot({ name: `Load${String(i).padStart(2, '0')}` }));
-    await sleep(1500);
+  const PER_PROCESS = 6;
+  const kids = [];
+  const ended = [];
+  for (let start = 0; start < N; start += PER_PROCESS) {
+    const kid = fork(path.join(__dirname, 'loadbots.js'), [String(start), String(Math.min(PER_PROCESS, N - start))], { stdio: 'ignore' });
+    kid.on('message', (m) => { if (m.ended) ended.push(m.ended); });
+    kids.push(kid);
   }
+  await sleep((PER_PROCESS * 1.2 + 6) * 1000);
   await sleep(5000);
   H.cmd('spreadplayers 0 0 60 600 false @a');
   await sleep(SETTLE * 1000);
@@ -77,10 +89,9 @@ async function phase(name, samples, { withStatus = false } = {}) {
   await sleep(10000);
   result.push(await phase(`${N} bots, surge tier 1 (boosted spawns)`, 12, { withStatus: true }));
 
-  const online = (H.logText().match(/\[Server thread\/INFO\]: Load\d\d\[.*logged in/g) || []).length;
   H.cmd('surge stop');
-  for (const b of bots) { try { b.bot.quit(); } catch (e) { /* already gone */ } }
-  await sleep(2000);
-  fs.writeFileSync(OUT, JSON.stringify({ players: N, loggedIn: online, result }, null, 2));
+  for (const k of kids) k.send('quit');
+  await sleep(3000);
+  fs.writeFileSync(OUT, JSON.stringify({ players: N, botsThatDisconnected: ended, result }, null, 2));
   process.exit(0);
 })();

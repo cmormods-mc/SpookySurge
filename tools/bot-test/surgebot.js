@@ -7,7 +7,7 @@ const fs = require('fs');
 
 const SKIP_RECIPES = { '1.21': { play: { toClient: { types: { packet_declare_recipes: 'restBuffer' } } } } };
 
-function createSurgeBot({ name, host = 'localhost', port = 25565, outFile }) {
+function createSurgeBot({ name, host = 'localhost', port = 25565, outFile, viewDistance }) {
   const started = Date.now();
   if (outFile) fs.writeFileSync(outFile, '');
   const events = [];
@@ -18,7 +18,7 @@ function createSurgeBot({ name, host = 'localhost', port = 25565, outFile }) {
   };
 
   const bot = mineflayer.createBot({
-    host, port, username: name, version: '1.21.1', auth: 'offline', customPackets: SKIP_RECIPES, hideErrors: true,
+    host, port, username: name, version: '1.21.1', auth: 'offline', customPackets: SKIP_RECIPES, hideErrors: true, ...(viewDistance ? { viewDistance } : {}),
   });
 
   const text = (m) => (m && m.toString ? m.toString() : String(m));
