@@ -39,6 +39,17 @@ function createSurgeBot({ name, host = 'localhost', port = 25565, outFile }) {
     return { title: text(b.title), progress: Number(b.health.toFixed(3)), color: b.color, dividers: b.dividers };
   }
 
+  /** Plain text of a name or lore component as it arrives in an item's NBT components. */
+  function textOf(n) {
+    if (n == null) return '';
+    if (typeof n === 'string') return n;
+    if (Array.isArray(n)) return n.map(textOf).join('');
+    if (n.type === 'string') return n.value;
+    if (n.type === 'list') return textOf((n.value && n.value.value) || []);
+    if (n.type === 'compound') return textOf(n.value);
+    return textOf(n.text) + textOf(n.extra);
+  }
+
   function inventory() {
     return bot.inventory.items().map((item) => {
       const c = item.components || [];
@@ -47,7 +58,8 @@ function createSurgeBot({ name, host = 'localhost', port = 25565, outFile }) {
         name: item.name,
         count: item.count,
         display: item.displayName,
-        customName: find('custom_name') ? JSON.stringify(find('custom_name')).slice(0, 120) : undefined,
+        itemName: find('item_name') ? textOf(find('item_name')) : undefined,
+        lore: find('lore') ? find('lore').map(textOf).join(' / ') : undefined,
         modelData: find('custom_model_data'),
       };
     });
