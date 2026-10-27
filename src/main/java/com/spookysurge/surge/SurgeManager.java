@@ -47,6 +47,11 @@ public final class SurgeManager {
     private static ServerBossEvent bar;
     private static long tick;
 
+    /** Per-surge tallies, for the one-line summary in the log. Not persisted: they only exist to make a log readable. */
+    private static int spawnedCount;
+    private static int creditedCount;
+    private static int expiredCount;
+
     private record Tracked(ResourceKey<Level> dimension, UUID owner, long expiresAtTick) {}
 
     private static final Map<UUID, Tracked> tracked = new HashMap<>();
@@ -99,6 +104,9 @@ public final class SurgeManager {
         state.maxTier = 0;
         state.visitorSpawned = false;
         state.actions.clear();
+        spawnedCount = 0;
+        creditedCount = 0;
+        expiredCount = 0;
         ledger = new RewardLedger(config.perPlayerRewardCap);
         if (slotKey != null) state.startedSlots.add(slotKey);
         if (startMs > now) {
@@ -124,6 +132,10 @@ public final class SurgeManager {
     public static void stopSurge(MinecraftServer server, boolean announceSummary) {
         if (state == null || state.phase == SurgeState.Phase.IDLE) return;
         boolean wasActive = state.phase == SurgeState.Phase.ACTIVE;
+        if (wasActive) {
+            SpookySurge.LOG.info("Surge {} ended: spawned {}, credited {}, expired {}, counter {}, tier {}",
+                    state.surgeId, spawnedCount, creditedCount, expiredCount, state.counter, state.maxTier);
+        }
         state.phase = SurgeState.Phase.IDLE;
         removeAllSurgePokemon(server);
         if (wasActive) {
@@ -203,7 +215,12 @@ public final class SurgeManager {
         long expires = tick + config.lifetimeSeconds * 20L;
         Optional<PokemonEntity> entity = SurgeSpawner.spawn(level, pos, species, rarity, state.surgeId, boosted, config, RANDOM,
                 id -> tracked.put(id, new Tracked(level.dimension(), owner, expires)));
-        if (entity.isEmpty()) SpookySurge.LOG.warn("Could not spawn surge species '{}' (unknown species id?)", species);
+        if (entity.isEmpty()) {
+            SpookySurge.LOG.warn("Could not spawn surge species '{}' (unknown species id?)", species);
+        } else {
+            spawnedCount++;
+            SpookySurge.LOG.debug("Spawned surge {} ({}) at {} for {}", species, rarity, pos, owner);
+        }
     }
 
     private static int ownedBy(UUID player) {
@@ -225,6 +242,7 @@ public final class SurgeManager {
             }
             if (expired && entity instanceof PokemonEntity pokemon && !pokemon.isBattling() && pokemon.getPokemon().isWild()) {
                 entity.discard();
+                expiredCount++;
                 it.remove();
             }
         }
@@ -274,6 +292,9 @@ public final class SurgeManager {
             amount = SurgeMath.candyFor(rarity, state.maxTier, config);
             give(player, amount);
         }
+        creditedCount++;
+        SpookySurge.LOG.info("Surge credit: {} took a {} {} (paid {} Candy Corn, counter {})",
+                player.getGameProfile().getName(), rarity, pokemon.getSpecies().getName(), amount, state.counter);
         player.displayClientMessage(Component.literal(amount > 0 ? "+" + amount + " Candy Corn" : "Surge counter +1")
                 .withStyle(ChatFormatting.GOLD), true);
         if (server != null) checkTier(server);
@@ -316,7 +337,7 @@ public final class SurgeManager {
                 config, RANDOM, id -> tracked.put(id, new Tracked(target.serverLevel().dimension(), target.getUUID(), expires)));
         if (entity.isPresent()) {
             state.visitorSpawned = true;
-            broadcast(server, Component.literal("A Haunted " + species + " has appeared near " + target.getGameProfile().getName()
+            broadcast(server, Component.literal("A Haunted " + capitalise(species) + " has appeared near " + target.getGameProfile().getName()
                     + "! The first to catch it wins.").withStyle(ChatFormatting.GOLD));
         }
     }
@@ -397,6 +418,10 @@ public final class SurgeManager {
         state.counter = Math.max(0, state.counter + amount);
         checkTier(server);
         state.setDirty();
+    }
+
+    private static String capitalise(String id) {
+        return id == null || id.isEmpty() ? "Pokemon" : Character.toUpperCase(id.charAt(0)) + id.substring(1);
     }
 
     public static String nameOf(UUID id) {
