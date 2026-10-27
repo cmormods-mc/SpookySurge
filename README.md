@@ -17,8 +17,8 @@ bonuses together. Players earn **Candy Corn**, a custom item you can sell or acc
 ## Screenshots
 
 Real-client screenshots (a Minecraft 1.21.1 Fabric client with Cobblemon, joined to a test server) are in
-[docs/screenshots](docs/screenshots/README.md): the countdown, a catch paying Candy Corn, the item's model and
-tooltip, and the Haunted Visitor.
+[docs/screenshots](docs/screenshots/README.md): the countdown, a catch and a battle win paying Candy Corn, the
+item's model and tooltip, and the Haunted Visitor.
 
 ## Candy Corn
 

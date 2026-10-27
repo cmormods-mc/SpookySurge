@@ -9,7 +9,7 @@ Run this once on a test server before the event. Tick each line only when you sa
 5. Ghost Pokemon appear around you with soul-fire particles within a minute. Several per player.
 6. Catch one. The action bar says `+N Candy Corn`, the bossbar counter goes up by 1, the item is in
    your inventory, and the log has a `Surge credit:` line.
-7. Defeat one in battle. The same happens.
+7. Defeat one in battle (stand near it, hold R on it for the "Press R to battle" prompt). The same happens. This was verified with a real client: the win paid, the action bar showed `+N Candy Corn`.
 8. `/surge tier 1` to `/surge tier 4`. Each announces itself once; tier 4 spawns a Haunted Visitor
    near you; the Candy Corn per catch doubles from tier 3.
 9. Ask a friend to join mid-surge. They get the bossbar and their own spawns.
@@ -27,4 +27,4 @@ Run this once on a test server before the event. Tick each line only when you sa
 payouts, tiers, the reward cap, the end bonus and an offline claim, the Visitor, expiry, and several players)
 against a throwaway server. They do not replace a human run: they cannot see models, particles, the resource
 pack, or battle wins. See `tools/bot-test/README.md`. `tools/real-client` can drive a real client under
-Xvfb for screenshots (a catch, the Candy Corn model and tooltip, the Visitor); battle wins are still untested.
+Xvfb for screenshots (a catch, a battle win, the Candy Corn model and tooltip, the Visitor).

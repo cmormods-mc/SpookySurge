@@ -16,3 +16,20 @@ Mojang's download hosts. The test server must be in offline mode and read consol
 4. `CONSOLE=<server console file> LOG=<server log> OUT=<dir> ./scene.sh` runs the scene and writes PNGs.
 
 The scene uses test conveniences (operator, night vision, a surge Pokemon teleported in front of the player).
+
+## Battles
+
+`battle.sh` makes one attempt to start a real battle against a surge Pokemon and, with `PLAY_MOVE=1`, plays the
+first move. It worked end to end: a Garchomp (Lv 90) beat a surge Duskull and the mod paid +3 Candy Corn. Things
+that were not obvious:
+
+- **Hold the key.** Cobblemon acts on key *release* and only if it saw the key down during a game tick, so
+  `xdotool key r` (a tap) does nothing. Use `keydown`, a 0.15 s sleep, then `keyup`.
+- **Level the view with absolute angles** (`tp @s ~ ~ ~ 0 0`). A relative pitch leaves the camera looking up.
+- **Put the target at eye height** (`^ ^1.2 ^3`) so a small Pokemon sits on the crosshair. Flying Pokemon drift, so
+  an attempt can miss: run it again. `NoAI` does not stop Cobblemon's Pokemon moving, and `/freezepokemon` did not
+  take an argument as expected, so neither is used.
+- **Wait for the "Press R to battle" label** above the Pokemon before pressing R.
+- **The unicode font** (`fetch_client.py` downloads it) is needed or the battle text renders as boxes. In a
+  running client, F3+T reloads resources.
+- Battle menu coordinates (1280x720): Fight (95,575); first move (125,568).

@@ -16,3 +16,19 @@ The catch itself was a real Master Ball throw from the client, paid by the mod.
 
 The Candy Corn model only appears when the client loads Polymer's resource pack (here it was copied in
 by hand). Without it the item looks like sugar with the same name.
+
+## A battle win
+
+Driven through the real client with real key presses and mouse clicks. The player's Garchomp (Lv 90) fought a
+wild surge Duskull (Lv 17), and the win was credited by the mod through Cobblemon's battle-victory event.
+
+| File | Shows |
+|------|-------|
+| `battle-challenge-prompt.png` | Cobblemon's own prompt above a wild surge Pokemon on the crosshair: "Lv. 17 - Press R to battle". |
+| `battle-menu.png` | The battle menu: Fight, Switch, Catch, Run. |
+| `battle-moves.png` | The move list, with the party Pokemon out and both health bars at the top. |
+| `battle-win.png` | The battle log: "Duskull fainted! ShotCam won!" |
+| `battle-win-pays.png` | After the win: `+3 Candy Corn` on the action bar, the boss bar at `1 / 100`, the Candy Corn in the hotbar, and `+37 EXP` on the Garchomp. The server logged `Surge credit: ShotCam took a uncommon Duskull (paid 3 Candy Corn, counter 1)`. |
+
+Test conveniences: the player was an operator, was given the Garchomp with `/givepokemon`, and the wild Pokemon was
+teleported in front of the player so it stayed on the crosshair.

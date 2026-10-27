@@ -38,7 +38,16 @@ def main(dest):
     index = version['assetIndex']
     os.makedirs(os.path.join(dest, 'assets', 'indexes'), exist_ok=True)
     open(os.path.join(dest, 'assets', 'indexes', index['id'] + '.json'), 'wb').write(get(index['url']))
-    print('ok:', len(paths), 'libraries, asset index', index['id'])
+    # Minecraft's unicode font. Without it, Cobblemon's battle text renders as boxes.
+    objects = json.loads(open(os.path.join(dest, 'assets', 'indexes', index['id'] + '.json')).read())['objects']
+    for name in ('minecraft/font/include/unifont.json', 'minecraft/font/unifont.zip', 'minecraft/font/unifont_jp.zip'):
+        h = objects[name]['hash']
+        d = os.path.join(dest, 'assets', 'objects', h[:2])
+        os.makedirs(d, exist_ok=True)
+        target = os.path.join(d, h)
+        if not os.path.exists(target):
+            open(target, 'wb').write(get('https://resources.download.minecraft.net/%s/%s' % (h[:2], h)))
+    print('ok:', len(paths), 'libraries, asset index', index['id'], '+ unicode font')
 
 if __name__ == '__main__':
     main(sys.argv[1] if len(sys.argv) > 1 else 'client')
