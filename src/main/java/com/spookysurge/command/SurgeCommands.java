@@ -56,6 +56,8 @@ public final class SurgeCommands {
                 long left = Math.max(0, (state.phaseEndsAt - System.currentTimeMillis()) / 1000);
                 reply(source, "Surge running: tier " + state.maxTier + ", " + state.counter + " / "
                         + SurgeManager.target(source.getServer()) + ", " + left / 60 + ":" + String.format("%02d", left % 60) + " left.");
+                reply(source, SurgeManager.progressLine());
+                if (source.hasPermission(2)) reply(source, "Surge id: " + state.surgeId);
                 if (source.getEntity() instanceof ServerPlayer player) {
                     reply(source, "Your catches and defeats: " + SurgeManager.ledger().actionsBy(player.getUUID()));
                 }

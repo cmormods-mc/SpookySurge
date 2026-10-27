@@ -115,6 +115,12 @@ public final class SurgeManager {
         ledger.restore(state.actions);
     }
 
+    /** One line for {@code /surge status}: how many surge Pokemon are alive and how this surge has gone so far. */
+    public static String progressLine() {
+        return "Surge Pokemon alive: " + tracked.size() + " (spawned " + spawnedCount + ", credited " + creditedCount
+                + ", expired " + expiredCount + ")";
+    }
+
     public static int target(MinecraftServer server) {
         return SurgeMath.target(server.getPlayerList().getPlayerCount(), config);
     }
