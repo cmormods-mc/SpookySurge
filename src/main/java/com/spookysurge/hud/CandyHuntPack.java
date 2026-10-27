@@ -31,7 +31,8 @@ public final class CandyHuntPack {
             FONT_TEX + "frame_l.png",
             FONT_TEX + "frame_r.png",
             FONT_TEX + "tier_lit.png",
-            FONT_TEX + "letters.png");
+            FONT_TEX + "letters.png",
+            FONT_TEX + "timer.png");
 
     public static void register() {
         PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.register(builder -> {

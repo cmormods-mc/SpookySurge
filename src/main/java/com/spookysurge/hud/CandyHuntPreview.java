@@ -34,6 +34,7 @@ public final class CandyHuntPreview {
         clear(player);
         CandyHuntBar bar = new CandyHuntBar(name, name);
         bar.setTier(tier);
+        bar.setTimer("12:34");
         bar.setProgress(percent / 100f);
         bar.addViewer(player);
         PREVIEWS.put(player.getUUID(), new Entry(bar, player.getServer().getTickCount() + LIFETIME_TICKS));

@@ -17,6 +17,7 @@ Date of checks: 2026-10-27. Environment: Minecraft 1.21.1, Fabric Loader 0.17.2,
 | Metrics equal the pixels | `CandyHuntAssetsTest.metricsMatchThePixels` | each letter's advance recomputed from the PNG (rightmost inked column + 2) equals the metrics the server uses |
 | The title is always 262 px wide and centred | `CandyHuntTitleTest` | 9 names x tiers 0-4 (empty, long, accents, CJK, 80 chars...), exact for every `spaces(n)` from -400 to 400 |
 | Java layout == the Python twin | `CandyHuntTitleGoldenTest` | 11 golden titles identical |
+| Timer layout | `CandyHuntTitleTest`, golden titles | titles stay exactly 262 px wide with 0 to 8 timer characters (non-digits dropped); the timer is right-aligned to x = 209 |
 | Progress is clamped | by construction (`setProgress`, `setHealth`) | NaN, negatives, > 1, zero or infinite max all become a valid 0..1 |
 | Updates only on change | `ServerBossEvent` bytecode (`setProgress`/`setName` compare first; `addPlayer`/`removePlayer` act only on set changes); `CandyHuntBar` also skips identical names and tiers | |
 
@@ -27,7 +28,7 @@ Date of checks: 2026-10-27. Environment: Minecraft 1.21.1, Fabric Loader 0.17.2,
 | The art renders; frame window sits on the vanilla bar; fill clips natively; the empty cavity is clearly different from the fill, at 100/75/50/25/10/0 %, by day and by night | [health-states-real-client.png](captures/health-states-real-client.png) |
 | Alignment holds at GUI scales 1, 2 (odd GUI width 639), 3 (odd GUI width 427) and 4 | [gui-scales-1-to-4.png](captures/gui-scales-1-to-4.png) |
 | Two CandyHunt bars at once, plus an unrelated vanilla purple Wither bar: no overlap, the Wither bar is untouched; a long name is cut with `...` | [two-bars-long-name-vanilla-bar.png](captures/two-bars-long-name-vanilla-bar.png) |
-| A live surge: the counter text changes and 0 / 2 / 3 / 4 tier lights glow as the tier rises | [live-surge-tiers.png](captures/live-surge-tiers.png) |
+| A live surge: the countdown timer under the bar ticks, and 0 / 2 / 3 / 4 tier lights glow as the tier rises | [live-surge-tiers.png](captures/live-surge-tiers.png) |
 | **Pack delivery by Polymer auto-host**: the client got the server's prompt (screenshot), accepted, and `hasMainPack` turned the bar to ART | [polymer-autohost-prompt.png](captures/polymer-autohost-prompt.png) |
 | **Pack declined**: one vanilla yellow bar with a plain-text title, no spacer, no missing-glyph boxes; the vanilla Wither bar is normal | [pack-declined-fallback.png](captures/pack-declined-fallback.png) |
 | The bar survives a dimension change (Nether) and a death and respawn, with no duplicate | observed on screen during the session |

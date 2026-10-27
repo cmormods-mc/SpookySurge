@@ -40,6 +40,15 @@
    ]
   },
   {
+   "type": "bitmap",
+   "file": "spookysurge:font/candyhunt/timer.png",
+   "ascent": -18,
+   "height": 7,
+   "chars": [
+    "\ue140\ue141\ue142\ue143\ue144\ue145\ue146\ue147\ue148\ue149\ue14a"
+   ]
+  },
+  {
    "type": "space",
    "advances": {
     "\ue201": 1,

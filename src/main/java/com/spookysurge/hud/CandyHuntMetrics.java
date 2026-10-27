@@ -48,6 +48,12 @@ public final class CandyHuntMetrics {
         public int h;
     }
 
+    public static final class Timer {
+        public int right;
+        public Map<String, Glyph> glyphs;
+    }
+
+    public Timer timer;
     public Frame frame;
     public Window window;
     @SerializedName("tier_lit")

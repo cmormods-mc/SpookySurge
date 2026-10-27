@@ -63,6 +63,7 @@ public final class CandyHuntBar {
     private String artName = "";
     private String plainName;
     private int tier;
+    private String timer = "";
 
     public CandyHuntBar(String artName, String plainName) {
         this.artName = artName;
@@ -96,6 +97,14 @@ public final class CandyHuntBar {
         art.setName(title(artName, clamped));
     }
 
+    /** The small countdown shown under the bar with the art (digits and colons, e.g. "27:00"; empty for none). Sent only when it changes. */
+    public void setTimer(String text) {
+        String clean = layout.sanitizeTimer(text);
+        if (clean.equals(timer)) return;
+        timer = clean;
+        art.setName(title(artName, tier));
+    }
+
     /** Progress 0..1; NaN and out-of-range values are clamped. The boss bar itself sends a packet only when the value changes. */
     public void setProgress(float value) {
         float p = Float.isNaN(value) ? 0f : Math.max(0f, Math.min(1f, value));
@@ -109,7 +118,7 @@ public final class CandyHuntBar {
     }
 
     private Component title(String name, int tier) {
-        return Component.literal(layout.title(name, tier)).withStyle(Style.EMPTY.withFont(FONT).withColor(0xFFFFFF));
+        return Component.literal(layout.title(name, tier, timer)).withStyle(Style.EMPTY.withFont(FONT).withColor(0xFFFFFF));
     }
 
     // ------------------------------------------------------------------------------------------------ viewers

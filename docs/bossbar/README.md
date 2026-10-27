@@ -75,6 +75,7 @@ is used. Anything that does use them will show the CandyHunt fill (YELLOW) or be
 | `assets/spookysurge/textures/font/candyhunt/frame_l.png`, `frame_r.png` | 131 x 56 each | the frame, split in two (see limits) |
 | `.../tier_lit.png` | 13 x 12 | a lit tier light |
 | `.../letters.png` | 60 x 56 | the name font: A-Z, 0-9, `. , ' ! ? : - & /`, cell 5 x 14 |
+| `.../timer.png` | 55 x 7 | the small countdown's digits and colon (cell 5 x 7) |
 | `assets/spookysurge/font/candyhunt.json` | | providers: three bitmap sets and a `space` provider (+-1 ... +-128) |
 
 Palette: burnt orange, pumpkin orange, candy yellow, ivory tips, charcoal and near-black outlines, dark plum, with violet and sickly-green
@@ -82,7 +83,9 @@ accents on the ghost's eyes and the trapped eyes in the rope. The theme is a can
 trick-or-treat pail under a licorice handle, brimming with candy corn, wrapped sweets and a lollipop; on the right a friendly spectral ghost
 rising from a licorice bowl of candy; between them twisted licorice rope rails with trapped spectral eyes, hanging candy-corn teeth, four
 carved jack-o'-lantern tier lights, cobwebs, and a cracked-enamel banner that reads SPOOKY SURGE CANDY HUNT. The counter is not in the art:
-the fill and the lit pumpkins show progress, and the numbers are in the plain-text fallback and `/surge status`.
+the fill and the lit pumpkins show progress, a small timer (m:ss, h:mm:ss from an hour) sits under the bar beside the right-hand cobweb, and the
+counter numbers are in the plain-text fallback and `/surge status`. The pumpkin is cut open near its widest point and the pail's rim is exactly
+as wide as the pumpkin, so the opening never overhangs it. The timer changes the title once a second, one small packet per viewer.
 
 **Animation**: only the fill is animated (16 frames, `frametime 4`, a restrained moving sheen). That path is verified in a real client. The frame
 is static on purpose. A low-health variant is not provided: the client cannot swap a texture per bar instance, so a variant would have to be a
@@ -100,6 +103,7 @@ Files: `com.spookysurge.hud.CandyHuntBar` (the bar), `CandyHuntTitle` (layout), 
 CandyHuntBar bar = new CandyHuntBar("SPOOKY SURGE", "Spooky Surge");   // name with the art, text without it
 bar.setNames("SPOOKY SURGE 20/100", "Spooky Surge | Tier 1 | 20 / 100 | 24:10 left");
 bar.setTier(1);                         // 0 to 4 lit pumpkins
+bar.setTimer("24:10");                  // small countdown under the bar; "" hides it
 bar.setHealth(current, max);            // or setProgress(0..1); NaN, negatives, zero max are safe
 bar.addViewer(player);                  // idempotent; call every tick if you like
 bar.removeViewer(player);

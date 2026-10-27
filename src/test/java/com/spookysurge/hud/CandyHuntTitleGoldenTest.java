@@ -23,7 +23,8 @@ class CandyHuntTitleGoldenTest {
         assertFalse(cases.isEmpty());
         for (JsonElement e : cases) {
             JsonObject c = e.getAsJsonObject();
-            assertEquals(c.get("title").getAsString(), t.title(c.get("name").getAsString(), c.get("tier").getAsInt()),
+            String timer = c.get("timer").isJsonNull() ? null : c.get("timer").getAsString();
+            assertEquals(c.get("title").getAsString(), t.title(c.get("name").getAsString(), c.get("tier").getAsInt(), timer),
                     "name '" + c.get("name").getAsString() + "' tier " + c.get("tier").getAsInt());
         }
     }

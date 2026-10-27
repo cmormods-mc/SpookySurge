@@ -183,6 +183,13 @@ class CandyHuntAssetsTest {
             checked++;
         }
         assertEquals(m.letters.size() - 1, checked, "every letter except the space is in the sheet");
+        BufferedImage timerSheet = png(FONT_TEX + "timer.png");
+        int tw = timerSheet.getWidth() / 11;
+        for (String tc : "0123456789:".split("")) {
+            int index = "0123456789:".indexOf(tc), right = -1;
+            for (int x = 0; x < tw; x++) for (int y = 0; y < timerSheet.getHeight(); y++) if (alpha(timerSheet, index * tw + x, y) > 0) right = Math.max(right, x);
+            assertEquals(right + 2, m.timer.glyphs.get(tc).adv, "timer glyph " + tc);
+        }
         BufferedImage stud = png(FONT_TEX + "tier_lit.png");
         assertEquals(png(FONT_TEX + "frame_l.png").getWidth() + 1, m.frame.advLeft);
         assertEquals(png(FONT_TEX + "frame_r.png").getWidth() + 1, m.frame.advRight);

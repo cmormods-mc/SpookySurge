@@ -6,7 +6,7 @@ Outputs (all under src/main/resources):
     assets/minecraft/textures/gui/sprites/boss_bar/yellow_background.png, yellow_progress.png(+.mcmeta)   reserved colour YELLOW
     assets/minecraft/textures/gui/sprites/boss_bar/blue_background.png,   blue_progress.png               reserved colour BLUE: fully transparent spacer
     assets/spookysurge/font/candyhunt.json
-    assets/spookysurge/textures/font/candyhunt/{frame_l,frame_r,tier_lit,letters}.png
+    assets/spookysurge/textures/font/candyhunt/{frame_l,frame_r,tier_lit,letters,timer}.png
     assets/spookysurge/hud/candyhunt_metrics.json   (not shipped to clients: glyph code points and advances for the server-side layout)
 """
 import json, os, sys
@@ -49,11 +49,13 @@ def main():
     frame.save(os.path.join(HERE, 'frame_full.png'))               # for previews only; never shipped
     stud, box = R.lit_stud(); stud.save(f'{FNT}/tier_lit.png')
     sheet, rows, metrics = R.font_sheet(); sheet.save(f'{FNT}/letters.png')
+    tsheet, tchars, tmetrics = R.timer_sheet(); tsheet.save(f'{FNT}/timer.png')
     providers = [
         {"type": "bitmap", "file": f"{NS}:font/candyhunt/frame_l.png", "ascent": ascent_for(0), "height": frame.height, "chars": [chr(FRAME_L_CP)]},
         {"type": "bitmap", "file": f"{NS}:font/candyhunt/frame_r.png", "ascent": ascent_for(0), "height": frame.height, "chars": [chr(FRAME_R_CP)]},
         {"type": "bitmap", "file": f"{NS}:font/candyhunt/tier_lit.png", "ascent": ascent_for(box[1]), "height": stud.height, "chars": [chr(STUD_CP)]},
         {"type": "bitmap", "file": f"{NS}:font/candyhunt/letters.png", "ascent": ascent_for(16), "height": R.CELL_H, "chars": rows},
+        {"type": "bitmap", "file": f"{NS}:font/candyhunt/timer.png", "ascent": ascent_for(R.TIMER_TOP), "height": R.TIMER_CELL_H, "chars": [tchars]},
     ]
     adv = {}
     for k in range(8):
@@ -68,6 +70,7 @@ def main():
         'tier_lit': {'cp': STUD_CP, 'adv': stud.width + 1, 'lefts': [x - 6 for x in R.STUD_X]},
         'window': {'x': R.SLOT_X, 'y': R.SLOT_Y, 'w': R.SLOT_W, 'h': R.SLOT_H},
         'plate': {'x0': 58, 'x1': 205}, 'canvasCenter': 131, 'titleWidth': 262,
+        'timer': {'right': R.TIMER_RIGHT, 'glyphs': tmetrics},
         'letters': metrics,
     }
     json.dump(meta, open(f'{HUD}/candyhunt_metrics.json', 'w'), indent=1)

@@ -12,6 +12,7 @@ META = json.load(open(os.path.join(B.HUD, 'candyhunt_metrics.json')))
 FRAME = Image.open(os.path.join(HERE, 'frame_full.png')).convert('RGBA')
 LIT = Image.open(f'{B.FNT}/tier_lit.png').convert('RGBA')
 LETTERS = Image.open(f'{B.FNT}/letters.png').convert('RGBA')
+TIMER = Image.open(f'{B.FNT}/timer.png').convert('RGBA')
 BG_SPRITE = Image.open(f'{B.SPR}/yellow_background.png').convert('RGBA')
 PROG = Image.open(f'{B.SPR}/yellow_progress.png').convert('RGBA')
 ORDER = R.ORDER
@@ -33,7 +34,7 @@ def name_run(name):
     return out
 
 
-def title_items(name, tier):
+def title_items(name, tier, timer='12:34'):
     """Mirror of CandyHuntTitle.java: [(image, x, y_top)] in title pixels, plus the total width. Order = draw order."""
     items = [(FRAME, 0, 0)]
     for k in range(min(4, tier)): items.append((LIT, META['tier_lit']['lefts'][k], 39))
@@ -43,6 +44,14 @@ def title_items(name, tier):
     for ch, adv in run:
         if ch != ' ': items.append((glyph_image(ch), x, 16))
         x += adv
+    t = ''.join(c for c in (timer or '') if c in META['timer']['glyphs'])
+    if t:
+        g = META['timer']['glyphs']
+        x = META['timer']['right'] - (sum(g[c]['adv'] for c in t) - 1)
+        for c in t:
+            i = R.TIMER_CHARS.index(c)
+            items.append((TIMER.crop((i * R.TIMER_CELL_W, 0, (i + 1) * R.TIMER_CELL_W, R.TIMER_CELL_H)), x, R.TIMER_TOP))
+            x += g[c]['adv']
     return items
 
 

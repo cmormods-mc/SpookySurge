@@ -142,7 +142,7 @@ def lollipop(c, cx, cy, r=5.2, stick=(3, 14)):
 
 def pumpkin_pail(c, cx=22):
     """Left medallion: a jack-o'-lantern trick-or-treat pail brimming with candy, under a licorice handle."""
-    handle = [(cx + 17.5 * math.cos(math.radians(a)), 25 + 22.0 * math.sin(math.radians(a))) for a in range(180, 361, 10)]
+    handle = [(cx - 1 + 15.8 * math.cos(math.radians(a)), 25 + 22.0 * math.sin(math.radians(a))) for a in range(180, 361, 10)]
     rope_pixels(c, handle, 2.8)
     # the candy pile, drawn behind the rim
     draw_candy(c, cx - 11, 7, 15, 9, 2.6, deg=-34, over=True)
@@ -151,15 +151,17 @@ def pumpkin_pail(c, cx=22):
     wrapped_candy(c, cx - 8, 18, deg=-18, wrap=0)
     draw_candy(c, cx, 5, 17, 10, 3, deg=4, over=True)
     wrapped_candy(c, cx + 2, 21, deg=10, wrap=1, length=11)
-    wrapped_candy(c, cx - 14, 22, deg=24, wrap=3, length=10)
-    # the pumpkin pail
-    body = c.ellipse(cx - 1, 40, 18.6, 15.2)
+    wrapped_candy(c, cx - 12, 22, deg=24, wrap=3, length=10)
+    # the pumpkin pail: a round pumpkin cut open near its widest point, so the opening is as wide as the pumpkin and the rim never overhangs it
+    bc, RX, RY, CY, CUT = cx - 1, 17.6, 21.0, 34, 27
+    body = c.ellipse(bc, CY, RX, RY)
+    body[:CUT, :] = False
     bevel(c, body, ORANGE, edge=body)
-    for k in (-13, -6.5, 6.5, 13):                                         # ribs follow the curve of the pumpkin
-        for y in range(26, 56):
-            f = 1 - ((y - 40) / 15.2) ** 2
+    for k in (-12.5, -6.2, 6.2, 12.5):                                     # ribs follow the curve of the pumpkin
+        for y in range(CUT, 56):
+            f = 1 - ((y - CY) / RY) ** 2
             if f <= 0: continue
-            x = int(round(cx + k * math.sqrt(f)))
+            x = int(round(bc + k * math.sqrt(f)))
             if 0 <= x < c.w and body[y, x]:
                 c.put(x, y, tuple4(ORANGE[1])); c.put(x + (1 if k < 0 else -1), y, tuple4(ORANGE[3]))
     c.outline(OUT, base=body)
@@ -185,10 +187,10 @@ def pumpkin_pail(c, cx=22):
         y1 = 47.8 + 6.0 * (1 - ((x - cx) / 13.5) ** 2) - 0.6
         t = c.poly([(x, y1), (x + 2.6, y1), (x + 1.3, y1 - 2.4)]) & m
         c.paint(t, edge)
-    # the pail's rim: a charcoal band with rivets, in front of the candy and the pumpkin top
-    rim = c.poly([(cx - 20, 24), (cx + 20, 24), (cx + 18.6, 29.4), (cx - 18.6, 29.4)])
+    # the rim: a charcoal band exactly as wide as the pumpkin at its widest, so it frames the opening instead of overhanging it
+    rim = c.poly([(bc - RX, 24), (bc + RX, 24), (bc + RX - 0.6, 29.4), (bc - RX + 0.6, 29.4)])
     bevel(c, rim, CHAR, edge=rim); c.outline(OUT, base=rim, over=True)
-    for x in (cx - 15, cx - 5, cx + 5, cx + 15): c.put(x, 26, tuple4(CHAR[4])); c.put(x, 27, tuple4(CHAR[0]))
+    for x in (bc - 12, bc - 4, bc + 4, bc + 12): c.put(int(x), 26, tuple4(CHAR[4])); c.put(int(x), 27, tuple4(CHAR[0]))
 
 
 def ghost_bowl(c, cx=242):
@@ -267,10 +269,10 @@ def rails(c):
         pass
 
 
-def web(c, ax, ay, bx, by, flip):
+def web(c, ax, ay, bx, by, flip, scale=1.0):
     """A tiny cobweb fanning from the corner (ax, ay); flip mirrors it for the right-hand side."""
     sgn = -1 if flip else 1
-    rays = [(sgn * 16, 1), (sgn * 14, 6), (sgn * 10, 11), (sgn * 5, 14), (0, 15)]
+    rays = [(sgn * 16 * scale, 1), (sgn * 14 * scale, 6 * scale), (sgn * 10 * scale, 11 * scale), (sgn * 5 * scale, 14 * scale), (0, 15 * scale)]
     for rx, ry in rays:
         n = int(max(abs(rx), abs(ry)))
         for i in range(n + 1):
@@ -327,7 +329,7 @@ def compose():
     c = Canvas(CW, CH)
     banner(c)
     rails(c)
-    web(c, 45, 41, 0, 0, False); web(c, 217, 41, 0, 0, True)
+    web(c, 45, 41, 0, 0, False); web(c, 224, 41, 0, 0, True, 0.75)
     fangs(c)
     for k in range(4): tier_studs(c, SLOT_X + (45, 91, 136, 181)[k], False)
     trapped_eyes(c)
@@ -446,3 +448,24 @@ def font_sheet():
         metrics[ch] = {'cp': cp, 'adv': right + 2}                     # Minecraft trims empty RIGHT columns: advance = rightmost inked column + 1, plus 1
     metrics[' '] = {'cp': PUA_BASE + 0xFF, 'adv': SPACE_ADV}
     return sheet, [''.join(r) for r in chars], metrics
+
+
+# ---------------------------------------------------------------------------------------------------------- timer font
+TIMER_CHARS = '0123456789:'
+TIMER_CELL_W, TIMER_CELL_H = 5, 7
+TIMER_CP_BASE = 0xE140
+TIMER_RIGHT, TIMER_TOP = 209, 47          # the timer's right edge and top, in frame pixels: under the bar, left of the right cobweb
+
+
+def timer_sheet():
+    """A strip of 5x7 digits and a colon for the small countdown under the bar. Same glyph rules as the name font."""
+    sheet = Image.new('RGBA', (len(TIMER_CHARS) * TIMER_CELL_W, TIMER_CELL_H), (0, 0, 0, 0))
+    metrics = {}
+    for i, ch in enumerate(TIMER_CHARS):
+        pat = PAT[ch]
+        for y, row in enumerate(pat):
+            for x, b in enumerate(row):
+                if b == '#': sheet.putpixel((i * TIMER_CELL_W + x, y), (*GLYPH_ROWS[y], 255))
+        right = max(x for row in pat for x, b in enumerate(row) if b == '#')
+        metrics[ch] = {'cp': TIMER_CP_BASE + i, 'adv': right + 2}
+    return sheet, ''.join(chr(TIMER_CP_BASE + i) for i in range(len(TIMER_CHARS))), metrics

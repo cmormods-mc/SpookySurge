@@ -39,7 +39,11 @@ def spaces(n):
     return out
 
 
-def title(name, tier):
+def timer_text(text):
+    return ''.join(c for c in (text or '') if c in M['timer']['glyphs'])[:8]
+
+
+def title(name, tier, timer=None):
     out, cur = '', 0
     f = M['frame']
     out += chr(f['cpLeft']); cur += f['advLeft']
@@ -54,20 +58,28 @@ def title(name, tier):
         out += spaces(start - cur); cur = start
         for c in run:
             out += chr(M['letters'][c]['cp']); cur += M['letters'][c]['adv']
+    t = timer_text(timer)
+    if t:
+        g = M['timer']['glyphs']
+        start = M['timer']['right'] - (sum(g[c]['adv'] for c in t) - 1)
+        out += spaces(start - cur); cur = start
+        for c in t:
+            out += chr(g[c]['cp']); cur += g[c]['adv']
     out += spaces(M['titleWidth'] - cur)
     return out
 
 
-def component_json(name, tier):
+def component_json(name, tier, timer=None):
     """The same title as a vanilla text component (what /bossbar set <id> name expects)."""
-    return json.dumps({"text": title(name, tier), "font": "spookysurge:candyhunt", "color": "white"})
+    return json.dumps({"text": title(name, tier, timer), "font": "spookysurge:candyhunt", "color": "white"})
 
 
-CASES = [('', 0), ('SPOOKY SURGE CANDY HUNT', 0), ('SPOOKY SURGE CANDY HUNT', 4), ('Spooky Surge 1234/5000', 2), ('a', 3), ('SURGE BEGINS IN 45S', 1),
-         ('x' * 80, 4), ('Pokémon  Trainer', 2), ('W' * 30, 0), ('中文 name', 1), ("It's the -END- & more: really?!", 4)]
+CASES = [('', 0, None), ('SPOOKY SURGE CANDY HUNT', 0, '27:00'), ('SPOOKY SURGE CANDY HUNT', 4, '0:05'), ('Spooky Surge 1234/5000', 2, '1:59:59'), ('a', 3, None),
+         ('CANDY HUNT BEGINS IN 45S', 1, '0:45'), ('x' * 80, 4, '12:34'), ('Pok\u00e9mon  Trainer', 2, 'ab1:2c'), ('W' * 30, 0, '99:99:99:99'),
+         ('\u4e2d\u6587 name', 1, ''), ("It's the -END- & more: really?!", 4, '8:08')]
 
 if __name__ == '__main__':
     out = os.path.join(HERE, '..', '..', 'src', 'test', 'resources', 'candyhunt_golden.json')
     os.makedirs(os.path.dirname(out), exist_ok=True)
-    json.dump([{'name': n, 'tier': t, 'title': title(n, t)} for n, t in CASES], open(out, 'w'), indent=1)
+    json.dump([{'name': n, 'tier': t, 'timer': tm, 'title': title(n, t, tm)} for n, t, tm in CASES], open(out, 'w'), indent=1)
     print('wrote', len(CASES), 'golden titles')

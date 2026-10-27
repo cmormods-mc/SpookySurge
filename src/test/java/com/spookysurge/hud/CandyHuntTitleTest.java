@@ -37,6 +37,22 @@ class CandyHuntTitleTest {
     }
 
     @Test
+    void timerKeepsTheTitleTheSameWidthAndSitsUnderTheBar() {
+        for (String timer : new String[] {"0:05", "27:00", "1:59:59", "12:34", "99:99:99:99", "ab1:2c", "", null}) {
+            String title = t.title("SPOOKY SURGE CANDY HUNT", 2, timer);
+            assertEquals(m.titleWidth, t.advanceOf(title), "timer '" + timer + "'");
+        }
+        String shown = t.title("A", 0, "27:00");
+        List<Placed> p = replay(shown);
+        List<Placed> digits = p.stream().filter(g -> m.timer.glyphs.values().stream().anyMatch(v -> v.cp == g.cp())).toList();
+        assertEquals(5, digits.size());
+        int end = digits.get(4).x() + m.timer.glyphs.get("0").adv - 1;
+        assertEquals(m.timer.right, end, "right-aligned");
+        assertEquals("27:00", t.sanitizeTimer("2a7:0b0"));
+        assertEquals("12345678", t.sanitizeTimer("1234567890"));
+    }
+
+    @Test
     void frameIsFirstAndSitsAtZero() {
         List<Placed> p = replay(t.title("A", 0));
         assertEquals(m.frame.cpLeft, p.get(0).cp());

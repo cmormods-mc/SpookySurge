@@ -22,6 +22,7 @@ FILES = [
     'assets/spookysurge/textures/font/candyhunt/frame_r.png',
     'assets/spookysurge/textures/font/candyhunt/tier_lit.png',
     'assets/spookysurge/textures/font/candyhunt/letters.png',
+    'assets/spookysurge/textures/font/candyhunt/timer.png',
 ]
 STATES = [(100, 4), (75, 3), (50, 2), (25, 1), (10, 0), (0, 0)]
 
@@ -40,7 +41,7 @@ def main():
         i = f'demo{pct}'
         lines += [f'# --- {pct}% health, tier {tier} lights',
                   f'bossbar add minecraft:{i}a {{"text":""}}', f'bossbar set minecraft:{i}a color blue', f'bossbar set minecraft:{i}a players @s',
-                  f'bossbar add minecraft:{i}b {T.component_json(name, tier)}', f'bossbar set minecraft:{i}b color yellow',
+                  f'bossbar add minecraft:{i}b {T.component_json(name, tier, '12:34')}', f'bossbar set minecraft:{i}b color yellow',
                   f'bossbar set minecraft:{i}b max 100', f'bossbar set minecraft:{i}b value {pct}', f'bossbar set minecraft:{i}b players @s',
                   f'bossbar add minecraft:{i}c {{"text":""}}', f'bossbar set minecraft:{i}c color blue', f'bossbar set minecraft:{i}c players @s', '']
         lines += ['# to show the next state, first run (uncomment):'] + [f'# bossbar remove minecraft:{i}{k}' for k in 'abc'] + ['']

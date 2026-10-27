@@ -462,6 +462,7 @@ public final class SurgeManager {
             long left = Math.max(0, (state.phaseEndsAt - now) / 1000);
             bar.setNames("CANDY HUNT BEGINS IN " + left + "S", "Spooky Surge Candy Hunt begins in " + left + "s");
             bar.setTier(0);
+            bar.setTimer(clock(left));
             bar.setProgress(left / (float) Math.max(1, config.countdownSeconds));
         } else {
             int target = target(server);
@@ -470,9 +471,16 @@ public final class SurgeManager {
             bar.setNames("SPOOKY SURGE CANDY HUNT",
                     String.format("Spooky Surge Candy Hunt  |  Tier %d  |  %d / %d  |  %d:%02d left", state.maxTier, state.counter, target, left / 60, left % 60));
             bar.setTier(state.maxTier);
+            bar.setTimer(clock(left));
             bar.setProgress(state.counter / (float) Math.max(1, target));
         }
         for (ServerPlayer player : server.getPlayerList().getPlayers()) bar.addViewer(player);
+    }
+
+    /** Seconds as m:ss, or h:mm:ss from an hour up: the small timer under the bar. */
+    static String clock(long seconds) {
+        long s = Math.max(0, seconds);
+        return s >= 3600 ? String.format("%d:%02d:%02d", s / 3600, s / 60 % 60, s % 60) : String.format("%d:%02d", s / 60, s % 60);
     }
 
     private static void clearBar() {

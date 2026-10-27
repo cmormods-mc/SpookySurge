@@ -61,8 +61,21 @@ public final class CandyHuntTitle {
         return cut.stripTrailing() + dots;
     }
 
-    /** The full title: frame, lit tier lights (0 to 4), then the centred name. */
+    /** The title without a timer. */
     public String title(String name, int tier) {
+        return title(name, tier, null);
+    }
+
+    /** Keeps only digits and colons, at most 8 characters. */
+    public String sanitizeTimer(String text) {
+        if (text == null) return "";
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < text.length() && out.length() < 8; i++) if (m.timer.glyphs.containsKey(String.valueOf(text.charAt(i)))) out.append(text.charAt(i));
+        return out.toString();
+    }
+
+    /** The full title: frame, lit tier lights (0 to 4), the centred name, and an optional small timer under the bar (e.g. "27:00"). */
+    public String title(String name, int tier, String timer) {
         StringBuilder out = new StringBuilder();
         int cursor = 0;
         out.appendCodePoint(m.frame.cpLeft);
@@ -81,6 +94,17 @@ public final class CandyHuntTitle {
             cursor = moveTo(out, cursor, m.canvasCenter - visualWidth(run) / 2);
             for (int i = 0; i < run.length(); i++) {
                 CandyHuntMetrics.Glyph g = m.glyph(run.charAt(i));
+                out.appendCodePoint(g.cp);
+                cursor += g.adv;
+            }
+        }
+        String t = sanitizeTimer(timer);
+        if (!t.isEmpty()) {
+            int width = -1;
+            for (int i = 0; i < t.length(); i++) width += m.timer.glyphs.get(String.valueOf(t.charAt(i))).adv;
+            cursor = moveTo(out, cursor, m.timer.right - width);
+            for (int i = 0; i < t.length(); i++) {
+                CandyHuntMetrics.Glyph g = m.timer.glyphs.get(String.valueOf(t.charAt(i)));
                 out.appendCodePoint(g.cp);
                 cursor += g.adv;
             }
@@ -126,6 +150,7 @@ public final class CandyHuntTitle {
 
     private int glyphAdvance(char c) {
         for (CandyHuntMetrics.Glyph g : m.letters.values()) if (g.cp == c) return g.adv;
+        for (CandyHuntMetrics.Glyph g : m.timer.glyphs.values()) if (g.cp == c) return g.adv;
         throw new IllegalArgumentException("unknown glyph U+" + Integer.toHexString(c));
     }
 }
