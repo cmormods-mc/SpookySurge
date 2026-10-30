@@ -76,6 +76,7 @@ public final class SurgeManager {
             ledger = new RewardLedger(config.perPlayerRewardCap);
             ledger.restore(state.actions);
             checkSpecies();
+            WorldBossCandy.register(server);
             SpookySurge.LOG.info("Spooky Surge ready (phase {}, counter {})", state.phase, state.counter);
         }));
         ServerLifecycleEvents.SERVER_STOPPING.register(server -> guard("stop", () -> {

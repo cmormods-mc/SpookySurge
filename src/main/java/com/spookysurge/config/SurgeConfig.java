@@ -56,6 +56,8 @@ public final class SurgeConfig {
     /** Everyone with at least {@link #participationMin} rewarded actions gets this once, when the surge ends. */
     public int participationBonus = 5;
     public int participationMin = 3;
+    /** Candy Corn each World Boss fighter gets when the boss is defeated (0 turns it off). */
+    public int worldBossCandy = 35;
     /** Rewarded actions per player per surge; beyond it a catch still counts for the meter but pays nothing. */
     public int perPlayerRewardCap = 60;
 
@@ -137,6 +139,7 @@ public final class SurgeConfig {
         candyUncommon = clamp("candyUncommon", candyUncommon, 0, 64, problems);
         candyRare = clamp("candyRare", candyRare, 0, 64, problems);
         doubleCandyMultiplier = clamp("doubleCandyMultiplier", doubleCandyMultiplier, 1, 10, problems);
+        worldBossCandy = clamp("worldBossCandy", worldBossCandy, 0, 640, problems);
         participationBonus = clamp("participationBonus", participationBonus, 0, 64, problems);
         participationMin = clamp("participationMin", participationMin, 0, 1000, problems);
         perPlayerRewardCap = clamp("perPlayerRewardCap", perPlayerRewardCap, 1, 10_000, problems);

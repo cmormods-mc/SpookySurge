@@ -33,6 +33,8 @@ public final class SurgeState extends SavedData {
     public final Map<UUID, Integer> pending = new HashMap<>();
     /** Schedule slots already run, so a restart cannot start one twice. */
     public final Set<String> startedSlots = new HashSet<>();
+    /** World Boss ids already paid Candy Corn, so a defeat heard twice (a restart) pays once. */
+    public final Set<String> paidBosses = new HashSet<>();
 
     public static SavedData.Factory<SurgeState> factory() {
         return new SavedData.Factory<>(SurgeState::new, SurgeState::load, DataFixTypes.LEVEL);
@@ -64,6 +66,8 @@ public final class SurgeState extends SavedData {
         }
         ListTag slots = tag.getList("slots", Tag.TAG_STRING);
         for (int i = 0; i < slots.size(); i++) state.startedSlots.add(slots.getString(i));
+        ListTag bosses = tag.getList("bosses", Tag.TAG_STRING);
+        for (int i = 0; i < bosses.size(); i++) state.paidBosses.add(bosses.getString(i));
         return state;
     }
 
@@ -90,6 +94,9 @@ public final class SurgeState extends SavedData {
         ListTag slots = new ListTag();
         for (String slot : startedSlots) slots.add(StringTag.valueOf(slot));
         tag.put("slots", slots);
+        ListTag bosses = new ListTag();
+        for (String boss : paidBosses) bosses.add(StringTag.valueOf(boss));
+        tag.put("bosses", bosses);
         return tag;
     }
 }

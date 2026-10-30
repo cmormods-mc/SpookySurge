@@ -76,6 +76,7 @@ warning and never spawns. After upgrading the mod, new keys take their defaults.
 | `tierFractions` | `[0.25, 0.5, 0.75, 1.0]` | four increasing values in (0, 1] | When tiers 1 to 4 unlock. |
 | `candyCommon`, `candyUncommon`, `candyRare` | 1, 3, 6 | 0-64 | Candy Corn per catch by species rarity. |
 | `doubleCandyTier`, `doubleCandyMultiplier` | 3, 2 | 1-4, 1-10 | When and how much payouts are multiplied. |
+| `worldBossCandy` | 35 | 0-640 | Candy Corn each World Boss fighter (anyone who dealt damage) gets when CobbleRaids reports the boss defeated. Offline fighters get it on joining. 0 turns it off. |
 | `participationBonus`, `participationMin` | 5, 3 | 0-64, 0-1000 | End-of-surge bonus and the actions needed for it. |
 | `perPlayerRewardCap` | 60 | 1-10000 | Catches paid per player per surge. Beyond it, a catch still moves the counter but pays nothing. |
 | `shinyMultiplier`, `shinyTier` | 3.0, 2 | 1-100, 1-4 | Shiny boost for surge Pokemon. |
